@@ -7,9 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
+  <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+:root { --gold: #D4AF37; --gold-dark: #B8860B; --gold-light: #F0E6D0; }
 body {
   font-family: 'Cairo', 'Inter', sans-serif;
   background: #FAF9F6;
@@ -34,6 +35,7 @@ body {
   position: absolute;
   top: 0; left: 0;
   width: 100%; height: 100%;
+  will-change: transform;
 }
 .hero-slide {
   position: absolute;
@@ -539,6 +541,220 @@ footer .loc { color: #888; font-size: 1rem; margin: 10px 0 24px; }
 footer .loc span { color: #B8860B; font-weight: 600; }
 footer .copy { color: #aaa; font-size: 0.85rem; }
 
+/* ── Progress Bar ── */
+#progressBar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+  z-index: 10000;
+  transition: width 0.1s;
+}
+
+/* ── Floating WhatsApp ── */
+.float-wa {
+  position: fixed;
+  bottom: 32px; left: 32px;
+  z-index: 9997;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: #25D366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 6px 28px rgba(37,211,102,0.4);
+  transition: all 0.3s;
+  font-size: 2rem;
+  animation: floatPulse 3s infinite;
+}
+.float-wa:hover {
+  transform: scale(1.12);
+  box-shadow: 0 10px 40px rgba(37,211,102,0.55);
+}
+@keyframes floatPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+/* ── Back to Top ── */
+.back-top {
+  position: fixed;
+  bottom: 32px; right: 32px;
+  z-index: 9997;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gold-dark);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(184,134,11,0.35);
+  transition: all 0.3s;
+  font-family: 'Inter', sans-serif;
+}
+.back-top.show { display: flex; }
+.back-top:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(184,134,11,0.5); }
+
+/* ── Process ── */
+#process { background: white; max-width: 100%; padding: 140px 32px; }
+#process .inner { max-width: 1400px; margin: 0 auto; }
+.process-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  margin-top: 56px;
+  position: relative;
+}
+.process-grid::before {
+  content: '';
+  position: absolute;
+  top: 48px; left: 10%; width: 80%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold-light), var(--gold), var(--gold-light));
+  z-index: 0;
+}
+@media (max-width: 768px) {
+  .process-grid { grid-template-columns: 1fr 1fr; }
+  .process-grid::before { display: none; }
+}
+@media (max-width: 480px) {
+  .process-grid { grid-template-columns: 1fr; }
+}
+.process-step {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+.process-step .step-num {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 24px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 1.4rem;
+  box-shadow: 0 4px 20px rgba(184,134,11,0.25);
+}
+.process-step h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  color: #1C1C1C;
+  margin-bottom: 10px;
+}
+.process-step p { color: #888; font-size: 0.95rem; line-height: 1.7; }
+
+/* ── Owner ── */
+#owner {
+  max-width: 100%;
+  padding: 0;
+  background: #1A1A1A;
+}
+.owner-grid {
+  display: flex;
+  align-items: stretch;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.owner-img {
+  flex: 0 0 45%;
+  min-height: 500px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.owner-img::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent 60%, #1A1A1A 100%);
+}
+.owner-text {
+  flex: 1;
+  padding: 100px 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.owner-text .badge {
+  display: inline-block;
+  padding: 6px 20px;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-size: 0.75rem;
+  letter-spacing: 3px;
+  font-weight: 300;
+  margin-bottom: 16px;
+  align-self: flex-start;
+}
+.owner-text h2 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(2.2rem, 4vw, 3.2rem);
+  color: #F5F5F5;
+  margin-bottom: 8px;
+}
+.owner-text .role {
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 24px;
+}
+.owner-text p {
+  color: rgba(255,255,255,0.65);
+  font-size: 1rem;
+  line-height: 1.9;
+  max-width: 520px;
+}
+.owner-text .signature {
+  font-family: 'Playfair Display', serif;
+  color: var(--gold);
+  font-size: 1.5rem;
+  margin-top: 24px;
+}
+@media (max-width: 800px) {
+  .owner-grid { flex-direction: column; }
+  .owner-img { flex: none; min-height: 300px; }
+  .owner-img::after { background: linear-gradient(transparent 40%, #1A1A1A 100%); }
+  .owner-text { padding: 48px 24px; }
+}
+
+/* ── Clients ── */
+#clients { background: #F5F3EF; max-width: 100%; padding: 100px 32px; }
+#clients .inner { max-width: 1400px; margin: 0 auto; }
+.clients-grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 48px;
+  flex-wrap: wrap;
+  margin-top: 40px;
+}
+.client-flag {
+  text-align: center;
+  opacity: 0.7;
+  transition: all 0.3s;
+  font-size: 3rem;
+  filter: grayscale(0.3);
+}
+.client-flag:hover {
+  opacity: 1;
+  transform: translateY(-6px);
+  filter: grayscale(0);
+}
+
 /* ── Animations ── */
 .fade-up {
   opacity: 0;
@@ -548,6 +764,24 @@ footer .copy { color: #aaa; font-size: 0.85rem; }
 .fade-up.visible {
   opacity: 1;
   transform: translateY(0);
+}
+.fade-left {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: all 0.9s ease;
+}
+.fade-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.fade-right {
+  opacity: 0;
+  transform: translateX(60px);
+  transition: all 0.9s ease;
+}
+.fade-right.visible {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* ── Scrollbar ── */
@@ -559,6 +793,8 @@ footer .copy { color: #aaa; font-size: 0.85rem; }
 </head>
 <body>
 
+<div id="progressBar"></div>
+
 <!-- HERO -->
 <section id="hero">
   <div class="hero-slideshow">
@@ -569,7 +805,7 @@ footer .copy { color: #aaa; font-size: 0.85rem; }
   </div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <div class="hero-badge">KAYSERI · TURKEY · FACTORY 5.000 M²</div>
+    <div class="hero-badge">KAYSERI · TURKEY · 10+ YEARS · FACTORY 5.000 M²</div>
     <h1>أبواب تُفتَح لها<br><span>القلوب والأسواق</span></h1>
     <div class="sub">أبواب صلب مصفحة فاخرة — من مصنعنا في تركيا إلى مشاريعك في كل مكان</div>
     <a href="#contact" class="btn-gold">اطلب عرض سعرك الآن</a>
@@ -598,7 +834,7 @@ footer .copy { color: #aaa; font-size: 0.85rem; }
         <svg viewBox="0 0 24 24" fill="none" stroke="#B8860B" stroke-width="1.5" stroke-linecap="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>
       </div>
       <h3>جودة تركية لا تُضاهى</h3>
-      <p>فولاذ معالج بأعلى المقاييس، أقفال HOK سويسري، ألياف صخرية عازلة للصوت والحرارة والرطوبة. كل باب يخرج بشهادة فحص وضمان مصنعي. مصنعنا 5,000 م² بطاقة إنتاج 3,000 باب شهرياً.</p>
+      <p>فولاذ معالج بأعلى المقاييس، أقفال HOK سويسري، ألياف صخرية عازلة للصوت والحرارة والرطوبة. كل باب يخرج بشهادة فحص وضمان مصنعي. أكثر من 10 سنوات خبرة في السوق، مصنعنا 5,000 م² بطاقة إنتاج 3,000 باب شهرياً.</p>
     </div>
     <div class="why-card fade-up">
       <div class="icon">
@@ -625,6 +861,36 @@ footer .copy { color: #aaa; font-size: 0.85rem; }
     <div class="markets-grid fade-up" id="marketsGrid"></div>
   </div>
 </div>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="inner">
+    <h2 class="section-title fade-up">كيف <span>نعمل</span></h2>
+    <p class="section-sub fade-up">من استشارتك الأولى حتى تركيب بابك — خطوات شفافة وسريعة</p>
+    <div class="process-grid">
+      <div class="process-step fade-up">
+        <div class="step-num">1</div>
+        <h4>استشارة وتصميم</h4>
+        <p>تتحدث معنا، تخبرنا بمتطلباتك، ونصمم لك الباب حسب مواصفات بلدك ومشروعك</p>
+      </div>
+      <div class="process-step fade-up">
+        <div class="step-num">2</div>
+        <h4>التصنيع في تركيا</h4>
+        <p>نصنع بابك في مصنعنا بقيصري بأعلى معايير الجودة والأمان باستخدام أفضل المواد</p>
+      </div>
+      <div class="process-step fade-up">
+        <div class="step-num">3</div>
+        <h4>فحص الجودة</h4>
+        <p>كل باب يمر بفحص دقيق — القفل، العزل، التشطيب — قبل شحنه لضمان مطابقته للمواصفات</p>
+      </div>
+      <div class="process-step fade-up">
+        <div class="step-num">4</div>
+        <h4>شحن وتوصيل</h4>
+        <p>ننسق معك الشحن والتخليص حتى يصل بابك إلى باب مشروعك بأمان وفي الوقت المحدد</p>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- COUNTRY MODAL -->
 <div class="modal-overlay" id="modal">
@@ -659,7 +925,27 @@ footer .copy { color: #aaa; font-size: 0.85rem; }
     <div class="num-item fade-up"><div class="num" data-target="3000">0</div><div class="label">باب يُنتج شهرياً</div></div>
     <div class="num-item fade-up"><div class="num" data-target="5000">0</div><div class="label">متر مربع — المصنع</div></div>
     <div class="num-item fade-up"><div class="num" data-target="10">0</div><div class="label">دولة نخدمها</div></div>
-    <div class="num-item fade-up"><div class="num" data-target="4">0</div><div class="label">سنوات في السوق</div></div>
+    <div class="num-item fade-up"><div class="num" data-target="10">0</div><div class="label">سنوات في السوق</div></div>
+  </div>
+</section>
+
+<!-- CLIENTS -->
+<section id="clients">
+  <div class="inner">
+    <h2 class="section-title fade-up">نصدر <span>لـ</span></h2>
+    <p class="section-sub fade-up">شحن مباشر من مصنعنا في قيصري إلى باب مشروعك</p>
+    <div class="clients-grid fade-up">
+      <span class="client-flag">🇸🇦</span>
+      <span class="client-flag">🇪🇬</span>
+      <span class="client-flag">🇮🇶</span>
+      <span class="client-flag">🇯🇴</span>
+      <span class="client-flag">🇱🇾</span>
+      <span class="client-flag">🇲🇦</span>
+      <span class="client-flag">🇩🇿</span>
+      <span class="client-flag">🇹🇳</span>
+      <span class="client-flag">🇸🇩</span>
+      <span class="client-flag">🇵🇸</span>
+    </div>
   </div>
 </section>
 
@@ -674,12 +960,35 @@ footer .copy { color: #aaa; font-size: 0.85rem; }
   <p class="contact-sub">نتكلم عربي · نقدم عروضاً مخصصة · شحن لأي دولة عربية · دعم فني وتخليص</p>
 </section>
 
+<!-- OWNER -->
+<section id="owner">
+  <div class="owner-grid">
+    <div class="owner-img" style="background-image:url('owner.jpg')"></div>
+    <div class="owner-text fade-right">
+      <div class="badge">FOUNDER & CEO</div>
+      <h2>محمد نعمة</h2>
+      <div class="role">صاحب شركة MN STEEL DOOR</div>
+      <p>
+        من قلب تركيا، صنعتُ علامة تجارية تضع الجودة قبل كل شيء.<br><br>
+        أكثر من 10 سنوات في سوق الأبواب المصفحة، أسستُ مصنعاً بمساحة 5,000 م² وطاقة إنتاج 3,000 باب شهرياً
+        نُصدرها إلى 10 دول عربية.<br><br>
+        فلسفتي بسيطة: بابك يُصنع كما تريده أنت، ليس كما نريده نحن.
+        كل باب يخرج من مصنعي يحمل توقيعي الشخصي وشهادة جودة — لأن سمعتي مع كل باب.
+      </p>
+      <div class="signature">— محمد نعمة</div>
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
   <div class="brand">MN STEEL DOOR</div>
   <div class="loc"><span>Kayseri</span>, Turkey · Export Division · Factory 5.000 m²</div>
   <div class="copy">&copy; 2026 MN STEEL DOOR. جميع الحقوق محفوظة.</div>
 </footer>
+
+<a href="https://wa.me/905015496017" target="_blank" class="float-wa" aria-label="واتساب">💬</a>
+<button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
 <!-- LIGHTBOX -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox()">
@@ -965,7 +1274,7 @@ const counterObs = new IntersectionObserver((entries) => {
     if (entry.isIntersecting) {
       const el = entry.target;
       const target = +el.dataset.target;
-      const steps = 60;
+      const steps = target < 50 ? target * 3 : 60;
       const inc = target / steps;
       let curr = 0;
       let step = 0;
@@ -983,7 +1292,7 @@ const counterObs = new IntersectionObserver((entries) => {
 counters.forEach(c => counterObs.observe(c));
 
 // ── Fade up ──
-const fadeEls = document.querySelectorAll('.fade-up');
+const fadeEls = document.querySelectorAll('.fade-up, .fade-left, .fade-right');
 const fadeObs = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -993,6 +1302,39 @@ const fadeObs = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.1 });
 fadeEls.forEach(el => fadeObs.observe(el));
+
+// ── Progress Bar + Back to Top + Parallax ──
+const progressBar = document.getElementById('progressBar');
+const backTop = document.getElementById('backTop');
+const hero = document.getElementById('hero');
+const heroSlideshow = hero?.querySelector('.hero-slideshow');
+
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const progress = (scrollTop / docHeight) * 100;
+  if (progressBar) progressBar.style.width = progress + '%';
+  if (backTop) backTop.classList.toggle('show', scrollTop > 500);
+  if (heroSlideshow) heroSlideshow.style.transform = `translateY(${scrollTop * 0.15}px)`;
+});
+
+// ── Smooth reveal for gallery items ──
+const galleryItems = document.querySelectorAll('.gallery-grid .item');
+const galleryObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'scale(1)';
+      galleryObs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.05 });
+galleryItems.forEach((item, i) => {
+  item.style.opacity = '0';
+  item.style.transform = 'scale(0.92)';
+  item.style.transition = `all 0.6s ease ${i * 0.06}s`;
+  galleryObs.observe(item);
+});
 </script>
 </body>
 </html>
