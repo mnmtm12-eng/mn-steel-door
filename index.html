@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MN STEEL DOOR — أبواب صلب مصفحة فاخرة من تركيا</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=Cairo:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Cairo', 'Inter', sans-serif;
+  background: #FAF9F6;
+  color: #1C1C1C;
+  line-height: 1.8;
+  overflow-x: hidden;
+}
+
+/* ── HERO ── */
+#hero {
+  position: relative;
+  height: 110vh;
+  min-height: 850px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  background: #1A1A1A;
+}
+.hero-slideshow {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+.hero-slide {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+.hero-slide.active { opacity: 1; }
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(135deg, rgba(26,26,26,0.85) 0%, rgba(26,26,26,0.2) 100%);
+}
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  padding: 0 32px;
+}
+.hero-content h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: clamp(4rem, 10vw, 8rem);
+  color: #F5F5F5;
+  line-height: 1.05;
+  letter-spacing: 2px;
+}
+.hero-content h1 span {
+  background: linear-gradient(135deg, #D4AF37, #C9A84C, #B8860B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+}
+.hero-content .sub {
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  color: rgba(255,255,255,0.7);
+  margin-top: 28px;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+.hero-content .btn-gold {
+  display: inline-block;
+  margin-top: 52px;
+  padding: 24px 80px;
+  background: linear-gradient(135deg, #D4AF37, #B8860B);
+  color: #1A1A1A;
+  font-family: 'Cairo', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.4s;
+  box-shadow: 0 8px 40px rgba(184,134,11,0.35);
+}
+.hero-content .btn-gold:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 60px rgba(184,134,11,0.5);
+}
+.hero-badge {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 10px 32px;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.45);
+  font-size: 0.85rem;
+  letter-spacing: 4px;
+  font-weight: 300;
+}
+.hero-dots {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+  z-index: 3;
+}
+.hero-dots span {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: 0.3s;
+}
+.hero-dots span.active {
+  background: #D4AF37;
+  width: 48px;
+  border-radius: 7px;
+}
+
+/* ── Sections ── */
+.section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 140px 32px;
+}
+@media (max-width: 768px) {
+  .section { padding: 80px 16px; }
+}
+.section-title {
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: clamp(2.6rem, 5vw, 4rem);
+  color: #1C1C1C;
+  letter-spacing: 0.5px;
+}
+.section-title span { color: #B8860B; }
+.section-sub {
+  text-align: center;
+  color: #888;
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 16px auto 64px;
+  font-weight: 300;
+}
+
+/* ── GALLERY ── */
+#gallery {
+  background: #F5F3EF;
+  max-width: 100%;
+  padding: 140px 32px;
+}
+#gallery .inner { max-width: 1600px; margin: 0 auto; }
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+}
+.gallery-grid .item {
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.06);
+  transition: all 0.5s;
+  aspect-ratio: 3/4;
+}
+.gallery-grid .item:hover {
+  transform: scale(1.06);
+  box-shadow: 0 16px 56px rgba(184,134,11,0.2);
+}
+.gallery-grid .item img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: 0.6s;
+}
+.gallery-grid .item:hover img { transform: scale(1.12); }
+
+/* ── Lightbox ── */
+.lightbox {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.95);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 48px;
+  cursor: pointer;
+}
+.lightbox.show { display: flex; }
+.lightbox img {
+  max-width: 96%;
+  max-height: 94vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+.lightbox .close {
+  position: absolute;
+  top: 32px; left: 40px;
+  color: white;
+  font-size: 3.5rem;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: 0.3s;
+  background: none;
+  border: none;
+  font-family: 'Inter', sans-serif;
+  line-height: 1;
+}
+.lightbox .close:hover { opacity: 1; }
+
+/* ── WHY ── */
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+  margin-top: 56px;
+}
+@media (max-width: 768px) {
+  .why-grid { grid-template-columns: 1fr; }
+}
+.why-card {
+  text-align: center;
+  padding: 72px 40px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.04);
+  transition: all 0.4s;
+  border-bottom: 4px solid transparent;
+}
+.why-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 20px 72px rgba(184,134,11,0.12);
+  border-bottom-color: #B8860B;
+}
+.why-card .icon {
+  width: 88px; height: 88px;
+  margin: 0 auto 28px;
+  background: linear-gradient(135deg, #FAF6ED, #F0E6D0);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.why-card .icon svg { width: 36px; height: 36px; }
+.why-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.6rem;
+  color: #1C1C1C;
+  margin-bottom: 16px;
+}
+.why-card p {
+  color: #888;
+  font-size: 1.05rem;
+  line-height: 1.9;
+}
+
+/* ── Markets ── */
+.markets-wrap {
+  background: #1C1C1C;
+  max-width: 100%;
+  padding: 120px 32px;
+}
+.markets-wrap .inner { max-width: 1400px; margin: 0 auto; }
+.markets-wrap .section-title { color: #F5F5F5; }
+.markets-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 48px;
+}
+.market-item {
+  text-align: center;
+  padding: 36px 48px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 14px;
+  min-width: 160px;
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.market-item:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: #D4AF37;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 32px rgba(212,175,55,0.15);
+}
+.market-item .flag { font-size: 3.5rem; display: block; margin-bottom: 10px; }
+.market-item .name { color: #F5F5F5; font-weight: 600; font-size: 1.15rem; }
+
+/* ── Country Modal ── */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  padding: 24px;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: #FAF9F6;
+  border-radius: 20px;
+  max-width: 1100px;
+  width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 40px;
+  position: relative;
+  animation: modalIn 0.35s ease;
+}
+@keyframes modalIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.modal-box .mclose {
+  position: absolute;
+  top: 24px; left: 28px;
+  font-size: 2.4rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  transition: 0.3s;
+  font-family: 'Inter', sans-serif;
+  line-height: 1;
+  z-index: 10;
+}
+.modal-box .mclose:hover { color: #1C1C1C; }
+.modal-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.modal-header .mflag { font-size: 4rem; display: block; margin-bottom: 6px; }
+.modal-header h2 { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #1C1C1C; }
+.modal-split {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+.modal-split .visual-side {
+  flex: 0 0 420px;
+}
+.modal-split .specs-side {
+  flex: 1;
+  min-width: 0;
+}
+@media (max-width: 800px) {
+  .modal-split { flex-direction: column; }
+  .modal-split .visual-side { flex: none; position: static; }
+}
+.modal-box .specs { margin-top: 0; }
+.modal-box .specs h4 {
+  font-family: 'Playfair Display', serif;
+  color: #B8860B;
+  font-size: 1.2rem;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #E8E4DE;
+  padding-bottom: 8px;
+}
+.modal-box .specs ul { list-style: none; padding: 0; }
+.modal-box .specs ul li {
+  padding: 10px 0;
+  border-bottom: 1px solid #EDEAE5;
+  color: #444;
+  font-size: 1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.modal-box .specs ul li .num-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #B8860B;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-family: 'Inter', sans-serif;
+}
+.modal-box .specs ul li::before { display: none; }
+.modal-box .price-section {
+  margin-top: 24px;
+  padding: 20px 24px;
+  background: #F5F3EF;
+  border-radius: 12px;
+}
+.modal-box .price-section h4 {
+  font-family: 'Playfair Display', serif;
+  color: #B8860B;
+  font-size: 1.2rem;
+  margin-bottom: 6px;
+}
+.modal-box .price-section .price-amount {
+  color: #1C1C1C;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.modal-box .price-section .price-note {
+  color: #888;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+.modal-box .note {
+  margin-top: 24px;
+  padding: 20px 24px;
+  background: #F0E6D0;
+  border-radius: 12px;
+  color: #5C4A1E;
+  font-size: 0.95rem;
+  text-align: center;
+  line-height: 1.7;
+}
+
+/* ── Country Image ── */
+.country-img-wrap {
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+}
+.country-img-wrap img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ── Numbers ── */
+.numbers-grid {
+  display: flex;
+  justify-content: center;
+  gap: 120px;
+  margin-top: 64px;
+  text-align: center;
+  flex-wrap: wrap;
+}
+@media (max-width: 768px) {
+  .numbers-grid { gap: 56px; }
+}
+.num-item .num {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 5.5rem;
+  background: linear-gradient(135deg, #D4AF37, #B8860B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  letter-spacing: 2px;
+}
+.num-item .label {
+  color: #888;
+  font-size: 1.1rem;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* ── Contact ── */
+#contact {
+  text-align: center;
+  padding: 140px 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.contact-btns {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 48px;
+  flex-wrap: wrap;
+}
+.contact-btns a {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 60px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 800;
+  font-family: 'Cairo', sans-serif;
+  font-size: 1.25rem;
+  transition: all 0.3s;
+}
+.contact-btns .wa {
+  background: #25D366;
+  color: white;
+  box-shadow: 0 6px 28px rgba(37,211,102,0.3);
+}
+.contact-btns .wa:hover { background: #1DA851; transform: translateY(-4px); box-shadow: 0 12px 48px rgba(37,211,102,0.4); }
+.contact-btns .email {
+  background: #1C1C1C;
+  color: white;
+  box-shadow: 0 6px 28px rgba(0,0,0,0.15);
+}
+.contact-btns .email:hover { background: #333; transform: translateY(-4px); box-shadow: 0 12px 48px rgba(0,0,0,0.25); }
+.contact-sub { color: #888; margin-top: 24px; font-size: 1rem; }
+
+/* ── Footer ── */
+footer {
+  text-align: center;
+  padding: 64px 32px 48px;
+  border-top: 1px solid #E8E4DE;
+  background: #FAF9F6;
+}
+footer .brand {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.8rem;
+  color: #B8860B;
+  letter-spacing: 3px;
+}
+footer .loc { color: #888; font-size: 1rem; margin: 10px 0 24px; }
+footer .loc span { color: #B8860B; font-weight: 600; }
+footer .copy { color: #aaa; font-size: 0.85rem; }
+
+/* ── Animations ── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: all 0.9s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #F5F3EF; }
+::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: #B8860B; }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-slideshow">
+    <div class="hero-slide active" style="background-image:url('كتلوك_مصفحة_لامينوكس__p033_door01.jpg')"></div>
+    <div class="hero-slide" style="background-image:url('كتلوك_مصفحة_لامينوكس__p026_door01.jpg')"></div>
+    <div class="hero-slide" style="background-image:url('كتلوك_مصفحة_لامينوكس__p009_door01.jpg')"></div>
+    <div class="hero-slide" style="background-image:url('كتلوك_مصفحة_لامينوكس__p014_door01.jpg')"></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge">KAYSERI · TURKEY · FACTORY 5.000 M²</div>
+    <h1>أبواب تُفتَح لها<br><span>القلوب والأسواق</span></h1>
+    <div class="sub">أبواب صلب مصفحة فاخرة — من مصنعنا في تركيا إلى مشاريعك في كل مكان</div>
+    <a href="#contact" class="btn-gold">اطلب عرض سعرك الآن</a>
+  </div>
+  <div class="hero-dots">
+    <span class="active"></span><span></span><span></span><span></span>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="inner">
+    <h2 class="section-title">صالة <span>العرض</span></h2>
+    <p class="section-sub">مجموعتنا الفاخرة من الأبواب المصفحة — اختر ما يناسب مشروعك واستلهم التصميم</p>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="section" id="why">
+  <h2 class="section-title fade-up">لماذا <span>MN STEEL DOOR</span></h2>
+  <p class="section-sub fade-up">أكثر من مجرد باب — معيار جديد للجودة والثقة في عالم الأبواب المصفحة</p>
+  <div class="why-grid">
+    <div class="why-card fade-up">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#B8860B" stroke-width="1.5" stroke-linecap="round"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg>
+      </div>
+      <h3>جودة تركية لا تُضاهى</h3>
+      <p>فولاذ معالج بأعلى المقاييس، أقفال HOK سويسري، ألياف صخرية عازلة للصوت والحرارة والرطوبة. كل باب يخرج بشهادة فحص وضمان مصنعي. مصنعنا 5,000 م² بطاقة إنتاج 3,000 باب شهرياً.</p>
+    </div>
+    <div class="why-card fade-up">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#B8860B" stroke-width="1.5" stroke-linecap="round"><path d="M12 2l3 7h7l-5 5 2 7-7-4-7 4 2-7-5-5h7z"/></svg>
+      </div>
+      <h3>سعر المصنع مباشرة</h3>
+      <p>لا وكيل، لا وسيط، لا عمولات. سعر أرض المصنع بقيصري مع دعم كامل في التخليص والشحن حتى وصول بابك. خصم خاص للكميات والطلبات المنتظمة — لأنك تستحق أفضل سعر.</p>
+    </div>
+    <div class="why-card fade-up">
+      <div class="icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#B8860B" stroke-width="1.5" stroke-linecap="round"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path d="M9 12l2 2 4-4"/></svg>
+      </div>
+      <h3>نعرف سوقك العربي</h3>
+      <p>نصدر لـ 10 دول عربية. نوفر المواصفات المفضّلة لكل دولة، ونساعدك في التخليص والوثائق. باب يناسب سوقك المحلي مش باب عام — لأن متطلبات السوق السعودي غير المغربي غير العراقي.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MARKETS -->
+<div class="markets-wrap">
+  <div class="inner">
+    <h2 class="section-title fade-up">نصدر <span>إلى</span></h2>
+    <p class="section-sub" style="color:#999">شحن مباشر · وثائق تصدير كاملة · دعم ميداني · ضمان مصنعي · شهادة منشأ</p>
+    <div class="markets-grid fade-up" id="marketsGrid"></div>
+  </div>
+</div>
+
+<!-- COUNTRY MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <button class="mclose" onclick="closeModal()">✕</button>
+    <div class="modal-header">
+      <span class="mflag" id="mFlag"></span>
+      <h2 id="mTitle"></h2>
+    </div>
+    <div class="modal-split">
+      <div class="visual-side">
+        <div class="country-img-wrap" id="countryImgWrap"><img id="countryImg" src="" alt=""></div>
+      </div>
+      <div class="specs-side">
+        <div class="specs" id="mSpecs"></div>
+        <div class="price-section" id="mPriceSection">
+          <h4>💰 السعر</h4>
+          <div class="price-amount" id="mPrice"></div>
+          <div class="price-note">* السعر من أرض المصنع بقيصري — الشحن والتخليص والجمارك على الزبون</div>
+        </div>
+        <div class="note">جميع الموديلات قابلة للتخصيص حسب طلبك — المقاس، اللون، نوع الخشب، القفل، العتبة، والتشطيب.<br><strong>نصنع بابك كما تريد أنت، لا كما نريد نحن.</strong></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NUMBERS -->
+<section class="section" id="numbers">
+  <h2 class="section-title fade-up">MN STEEL DOOR <span>بالأرقام</span></h2>
+  <p class="section-sub fade-up">حجم المصنع · الطاقة الإنتاجية · الانتشار · الخبرة</p>
+  <div class="numbers-grid">
+    <div class="num-item fade-up"><div class="num" data-target="3000">0</div><div class="label">باب يُنتج شهرياً</div></div>
+    <div class="num-item fade-up"><div class="num" data-target="5000">0</div><div class="label">متر مربع — المصنع</div></div>
+    <div class="num-item fade-up"><div class="num" data-target="10">0</div><div class="label">دولة نخدمها</div></div>
+    <div class="num-item fade-up"><div class="num" data-target="4">0</div><div class="label">سنوات في السوق</div></div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <h2 class="section-title fade-up">ابدأ تعاملنا <span>اليوم</span></h2>
+  <p class="section-sub fade-up">نقدم عروضاً مخصصة لكل دولة ولكل مشروع — نرد خلال 24 ساعة</p>
+  <div class="contact-btns fade-up">
+    <a href="https://wa.me/905015496017" target="_blank" class="wa">📱 واتساب مباشر</a>
+    <a href="mailto:info@mnsteeldoor.com" class="email">📧 راسلنا بالإيميل</a>
+  </div>
+  <p class="contact-sub">نتكلم عربي · نقدم عروضاً مخصصة · شحن لأي دولة عربية · دعم فني وتخليص</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="brand">MN STEEL DOOR</div>
+  <div class="loc"><span>Kayseri</span>, Turkey · Export Division · Factory 5.000 m²</div>
+  <div class="copy">&copy; 2026 MN STEEL DOOR. جميع الحقوق محفوظة.</div>
+</footer>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="close" onclick="closeLightbox()">✕</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+// ── Images ──
+const images = [
+  "كتلوك_مصفحة_لامينوكس__p002_door01.jpg","كتلوك_مصفحة_لامينوكس__p002_door02.jpg",
+  "كتلوك_مصفحة_لامينوكس__p005_door01.jpg","كتلوك_مصفحة_لامينوكس__p005_door02.jpg",
+  "كتلوك_مصفحة_لامينوكس__p007_door01.jpg","كتلوك_مصفحة_لامينوكس__p007_door02.jpg",
+  "كتلوك_مصفحة_لامينوكس__p009_door01.jpg","كتلوك_مصفحة_لامينوكس__p009_door02.jpg",
+  "كتلوك_مصفحة_لامينوكس__p014_door01.jpg","كتلوك_مصفحة_لامينوكس__p014_door02.jpg",
+  "كتلوك_مصفحة_لامينوكس__p016_door01.jpg","كتلوك_مصفحة_لامينوكس__p016_door02.jpg",
+  "كتلوك_مصفحة_لامينوكس__p019_door01.jpg","كتلوك_مصفحة_لامينوكس__p019_door02.jpg",
+  "كتلوك_مصفحة_لامينوكس__p024_door01.jpg","كتلوك_مصفحة_لامينوكس__p024_door02.jpg",
+  "كتلوك_مصفحة_لامينوكس__p025_door01.jpg","كتلوك_مصفحة_لامينوكس__p026_door01.jpg",
+  "كتلوك_مصفحة_لامينوكس__p026_door02.jpg","كتلوك_مصفحة_لامينوكس__p033_door01.jpg",
+  "كتلوك_مصفحة_لامينوكس__p033_door02.jpg",
+];
+
+// ── Gallery ──
+const grid = document.getElementById('galleryGrid');
+images.forEach(src => {
+  const div = document.createElement('div');
+  div.className = 'item';
+  const img = document.createElement('img');
+  img.src = src;
+  img.alt = 'باب مصفح فاخر';
+  img.loading = 'lazy';
+  div.appendChild(img);
+  div.addEventListener('click', () => openLightbox(src));
+  grid.appendChild(div);
+});
+
+// ── Lightbox ──
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeLightbox(); closeModal(); } });
+
+// ── Hero slideshow ──
+const slides = document.querySelectorAll('.hero-slide');
+const dots = document.querySelectorAll('.hero-dots span');
+let current = 0;
+function nextSlide() {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = (current + 1) % slides.length;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+setInterval(nextSlide, 5000);
+
+// ── Country image path ──
+function countryImagePath(country) {
+  const map = {
+    "مصر": "مصر",
+    "العراق": "العراق",
+    "الأردن": "الأردن",
+    "ليبيا": "ليبيا",
+    "المغرب": "المغرب",
+    "السعودية": "السعودية",
+    "الجزائر": "الجزائر",
+    "تونس": "تونس",
+    "السودان": "السودان",
+    "فلسطين": "فلسطين",
+  };
+  const name = map[country] || "مصر";
+  return `country_doors/${encodeURIComponent(name)}.jpg`;
+}
+
+// ── Countries data ──
+const countries = [
+  {
+    flag: "🇪🇬", name: "مصر",
+    specs: [
+      "تصفيح كامل للباب",
+      "ألياف صخرية كامل (عازل صوت، مقاوم حريق، عازل رطوبة)",
+      "3 أقفال HOK + قفل سلسلة",
+      "خباطة سركل",
+      "عتبة ستانلس",
+      "أرض الدرفة 7-8 سم كروم",
+      "أخشاب موديل حسب الطلب",
+      "طرفين موديل",
+      "MDF نوع أول سماكة 10 مم",
+      'ختم "صنع في تركيا"',
+    ],
+    price: "من $140"
+  },
+  {
+    flag: "🇮🇶", name: "العراق",
+    specs: [
+      "تصفيح كامل للباب",
+      "ألياف صخرية كامل (عازل صوت، مقاوم حريق، عازل رطوبة)",
+      "قفل HOK 5 مفاتيح",
+      "عتبة ستانلس حسب الطلب",
+      "أرض الدرفة 7-8 سم كروم",
+      "أخشاب موديل حسب الطلب",
+      "طرفين موديل",
+      "MDF نوع أول سماكة 10 مم",
+      "حديد 1.2 مم",
+      'ختم "صنع في تركيا"',
+    ],
+    price: "يطلب عرض السعر"
+  },
+  {
+    flag: "🇯🇴", name: "الأردن",
+    specs: [
+      "تصفيح كامل للباب",
+      "ألياف صخرية كامل (عازل صوت، مقاوم حريق، عازل رطوبة)",
+      "قفل HOK 5 مفاتيح",
+      "عتبة حسب الطلب",
+      "أرض الدرفة 7-8 سم كروم",
+      "أخشاب موديل حسب الطلب",
+      "طرفين موديل",
+      "MDF نوع أول سماكة 10 مم",
+      "حديد 1.2 مم",
+      'ختم "صنع في تركيا"',
+    ],
+    price: "$160 – $220 حسب المقاس"
+  },
+  {
+    flag: "🇱🇾", name: "ليبيا",
+    specs: [
+      "تصفيح كامل للباب",
+      "ألياف صخرية كامل (عازل صوت، مقاوم حريق، عازل رطوبة)",
+      "قفل HOK 5 مفاتيح",
+      "أرض الدرفة 7-8 سم ستانلس",
+      "أخشاب موديل حسب الطلب",
+      "طرفين موديل",
+      "MDF نوع أول سماكة 10 مم",
+      "حديد 1.00 مم",
+      'ختم "صنع في تركيا"',
+    ],
+    price: "يطلب عرض السعر حسب المواصفات والكمية"
+  },
+  {
+    flag: "🇲🇦", name: "المغرب",
+    specs: [
+      "تصفيح كامل للباب",
+      "ألياف صخرية كامل (عازل صوت، مقاوم حريق، عازل رطوبة)",
+      "قفل HOK 5 مفاتيح",
+      "أرض الدرفة 7-8 سم ستانلس",
+      "أخشاب موديل حسب الطلب",
+      "طرفين موديل",
+      "MDF نوع أول سماكة 10 مم",
+      "حديد 1.00 مم",
+      'ختم "صنع في تركيا"',
+    ],
+    price: "من $140"
+  },
+  {
+    flag: "🇸🇦", name: "السعودية",
+    specs: [
+      "تصفيح كامل للباب",
+      "ألياف صخرية كامل (عازل صوت، مقاوم حريق، عازل رطوبة)",
+      "قفل HOK 5 مفاتيح",
+      "عتبة ستانلس حسب الطلب",
+      "أرض الدرفة 7-8 سم كروم",
+      "أخشاب موديل حسب الطلب",
+      "طرفين موديل",
+      "MDF نوع أول سماكة 10 مم",
+      "حديد 1.2 مم",
+      'ختم "صنع في تركيا"',
+    ],
+    price: "يطلب عرض السعر"
+  },
+  {
+    flag: "🇩🇿", name: "الجزائر",
+    specs: [
+      "تصفيح كامل للباب",
+      "ألياف صخرية كامل (عازل صوت، مقاوم حريق، عازل رطوبة)",
+      "قفل HOK 5 مفاتيح",
+      "أرض الدرفة 7-8 سم كروم",
+      "أخشاب موديل حسب الطلب",
+      "طرفين موديل",
+      "MDF نوع أول سماكة 10 مم",
+      "حديد 1.00 مم",
+      'ختم "صنع في تركيا"',
+    ],
+    price: "يطلب عرض السعر"
+  },
+  {
+    flag: "🇹🇳", name: "تونس",
+    specs: [
+      "تصفيح كامل للباب",
+      "ألياف صخرية كامل (عازل صوت، مقاوم حريق، عازل رطوبة)",
+      "قفل HOK 5 مفاتيح",
+      "أرض الدرفة 7-8 سم ستانلس",
+      "أخشاب موديل حسب الطلب",
+      "MDF نوع أول سماكة 10 مم",
+      "حديد 1.00 مم",
+      'ختم "صنع في تركيا"',
+    ],
+    price: "يطلب عرض السعر"
+  },
+  {
+    flag: "🇸🇩", name: "السودان",
+    specs: [
+      "تصفيح كامل للباب",
+      "ألياف صخرية كامل (عازل صوت، مقاوم حريق)",
+      "قفل HOK 5 مفاتيح",
+      "أرض الدرفة 7-8 سم كروم",
+      "أخشاب موديل حسب الطلب",
+      "MDF نوع أول سماكة 10 مم",
+      'ختم "صنع في تركيا"',
+    ],
+    price: "يطلب عرض السعر"
+  },
+  {
+    flag: "🇵🇸", name: "فلسطين",
+    specs: [
+      "تصفيح كامل للباب",
+      "ألياف صخرية كامل (عازل صوت، مقاوم حريق، عازل رطوبة)",
+      "قفل HOK 5 مفاتيح",
+      "عتبة حسب الطلب",
+      "أرض الدرفة 7-8 سم كروم",
+      "أخشاب موديل حسب الطلب",
+      "طرفين موديل",
+      "MDF نوع أول سماكة 10 مم",
+      "حديد 1.2 مم",
+      'ختم "صنع في تركيا"',
+    ],
+    price: "يطلب عرض السعر"
+  },
+];
+
+// ── Build markets grid ──
+const mGrid = document.getElementById('marketsGrid');
+countries.forEach((c, i) => {
+  const div = document.createElement('div');
+  div.className = 'market-item';
+  div.innerHTML = `<span class="flag">${c.flag}</span><div class="name">${c.name}</div>`;
+  div.addEventListener('click', () => openModal(i));
+  mGrid.appendChild(div);
+});
+
+// ── Modal ──
+function openModal(i) {
+  const c = countries[i];
+  document.getElementById('mFlag').textContent = c.flag;
+  document.getElementById('mTitle').textContent = c.name;
+
+  // Specs
+  const specsDiv = document.getElementById('mSpecs');
+  let html = `<h4>📋 المواصفات الفنية</h4><ul>`;
+  c.specs.forEach((s, idx) => {
+    html += `<li><span class="num-badge">${idx + 1}</span><span>${s}</span></li>`;
+  });
+  html += `</ul>`;
+  specsDiv.innerHTML = html;
+
+  // Price
+  document.getElementById('mPrice').textContent = c.price;
+
+  // Real country image
+  document.getElementById('countryImg').src = countryImagePath(c.name);
+
+  document.getElementById('modal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.getElementById('modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── Counter ──
+const counters = document.querySelectorAll('.num');
+const counterObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      const target = +el.dataset.target;
+      const steps = 60;
+      const inc = target / steps;
+      let curr = 0;
+      let step = 0;
+      const update = () => {
+        step++;
+        curr = Math.min(Math.round(inc * step), target);
+        el.textContent = curr.toLocaleString() + '+';
+        if (step < steps) requestAnimationFrame(update);
+      };
+      update();
+      counterObs.unobserve(el);
+    }
+  });
+}, { threshold: 0.3 });
+counters.forEach(c => counterObs.observe(c));
+
+// ── Fade up ──
+const fadeEls = document.querySelectorAll('.fade-up');
+const fadeObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      fadeObs.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+fadeEls.forEach(el => fadeObs.observe(el));
+</script>
+</body>
+</html>
