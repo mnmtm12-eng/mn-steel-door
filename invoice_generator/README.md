@@ -24,7 +24,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-ثم افتح المتصفح على:  **http://localhost:5000**
+ثم افتح المتصفح على:  **http://localhost:8000**
 
 > في كل مرة لاحقاً: `cd` للمجلد ثم `source .venv/bin/activate` ثم `python app.py`.
 

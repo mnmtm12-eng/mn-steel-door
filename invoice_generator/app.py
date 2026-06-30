@@ -503,7 +503,14 @@ def settings_page():
                            margin=setting("margin", DEFAULT_MARGIN))
 
 if __name__ == "__main__":
+    import sys
+    # macOS يحجز البورت 5000 لخدمة AirPlay (يرجّع 403)، فالافتراضي 8000.
+    port = 8000
+    if len(sys.argv) > 1 and sys.argv[1].isdigit():
+        port = int(sys.argv[1])
+    elif os.environ.get("PORT", "").isdigit():
+        port = int(os.environ["PORT"])
     print("\n  MN STEEL DOOR — Invoice Generator")
-    print("  افتح المتصفح على:  http://localhost:5000")
+    print(f"  افتح المتصفح على:  http://localhost:{port}")
     print(f"  بيانات العمل في:  {DATA_DIR}\n")
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    app.run(host="127.0.0.1", port=port, debug=False)
