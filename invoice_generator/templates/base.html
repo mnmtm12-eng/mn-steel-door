@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}MN STEEL DOOR{% endblock %} — Invoice Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+{% if session.get('auth') %}
+<header class="topbar">
+  <div class="brand"><span class="logo">MN</span> STEEL DOOR <small>· Invoice Generator</small></div>
+  <nav>
+    <a href="{{ url_for('index') }}" class="{{ 'on' if request.endpoint=='index' }}">فاتورة جديدة</a>
+    <a href="{{ url_for('history') }}" class="{{ 'on' if request.endpoint=='history' }}">سجل الفواتير</a>
+    <a href="{{ url_for('settings_page') }}" class="{{ 'on' if request.endpoint=='settings_page' }}">الإعدادات</a>
+    <a href="{{ url_for('logout') }}" class="muted">خروج</a>
+  </nav>
+</header>
+{% endif %}
+
+{% with msgs = get_flashed_messages() %}
+  {% if msgs %}<div class="flash">{% for m in msgs %}<div>{{ m }}</div>{% endfor %}</div>{% endif %}
+{% endwith %}
+
+<main>{% block body %}{% endblock %}</main>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

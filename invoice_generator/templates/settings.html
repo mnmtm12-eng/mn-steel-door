@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}الإعدادات{% endblock %}
+{% block body %}
+<div class="page">
+  <h2 class="page-title">الإعدادات</h2>
+
+  <section class="card">
+    <div class="card-h">الشركات المصدّرة (املأ الشركتين 2 و 3)</div>
+    {% for co in companies %}
+    <form method="post" class="company-form">
+      <input type="hidden" name="section" value="company"><input type="hidden" name="id" value="{{ co.id }}">
+      <div class="grid3">
+        <input name="name" value="{{ co.name }}" placeholder="اسم الشركة" class="span3">
+        <input name="address" value="{{ co.address }}" placeholder="العنوان" class="span3">
+        <input name="phone" value="{{ co.phone }}" placeholder="الهاتف">
+        <input name="email" value="{{ co.email }}" placeholder="الإيميل">
+        <input name="bank_name" value="{{ co.bank_name }}" placeholder="البنك">
+        <input name="branch" value="{{ co.branch }}" placeholder="الفرع">
+        <input name="branch_code" value="{{ co.branch_code }}" placeholder="كود الفرع">
+        <input name="swift" value="{{ co.swift }}" placeholder="SWIFT">
+        <input name="iban" value="{{ co.iban }}" placeholder="IBAN" class="span3">
+      </div>
+      <button class="btn-gold sm">حفظ الشركة {{ loop.index }}</button>
+      <hr>
+    </form>
+    {% endfor %}
+  </section>
+
+  <section class="card">
+    <div class="card-h">أسعار الموديلات · <span class="secret-badge">سعر التكلفة سرّي</span></div>
+    <form method="post">
+      <input type="hidden" name="section" value="models">
+      <table class="grid">
+        <thead><tr><th>الموديل</th><th>المقاس</th><th>السعر الافتراضي ($)</th><th>سعر التكلفة ($) — سرّي</th></tr></thead>
+        <tbody>
+          {% for m in models %}
+          <tr>
+            <td>{{ m.code }}</td><td class="mono">{{ m.size }}</td>
+            <td><input class="num-in" type="number" step="0.01" name="default_{{ m.id }}" value="{{ '%.2f'|format(m.default_price) }}"></td>
+            <td><input class="num-in cost" type="number" step="0.01" name="cost_{{ m.id }}" value="{{ '%.2f'|format(m.cost_price) }}"></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <button class="btn-gold sm">حفظ كل الأسعار</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="card-h">إعدادات عامة</div>
+    <form method="post" class="grid3">
+      <input type="hidden" name="section" value="general">
+      <div class="field"><label>سعة الكونتينر (عدد الأبواب)</label><input type="number" name="container_cap" value="{{ container_cap }}"></div>
+      <div class="field"><label>حد الربح الأحمر %</label><input type="number" name="red_pct" value="{{ margin.red_pct }}"></div>
+      <div class="field"><label>حد الربح الأصفر %</label><input type="number" name="yellow_pct" value="{{ margin.yellow_pct }}"></div>
+      <button class="btn-gold sm span3">حفظ</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

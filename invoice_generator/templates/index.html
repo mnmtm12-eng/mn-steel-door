@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}فاتورة جديدة{% endblock %}
+{% block body %}
+<div class="page">
+  <h2 class="page-title">إنشاء فاتورة {% if dup %}<span class="tag">مكرّرة من {{ dup.invoice_no }}</span>{% endif %}</h2>
+
+  <form id="invForm" method="post" action="{{ url_for('create_invoice') }}">
+  <input type="hidden" name="items_json" id="items_json">
+  <div class="layout">
+    <!-- ============ left: inputs ============ -->
+    <div class="col-main">
+
+      <section class="card">
+        <div class="card-h">١ · الأطراف</div>
+        <div class="grid2">
+          <div class="field">
+            <label>العميل (المستلم)</label>
+            <div class="row-inline">
+              <select name="customer_id" id="customer_id" required>
+                {% for c in customers %}
+                <option value="{{ c.id }}" data-country="{{ c.country }}" data-currency="{{ c.currency }}"
+                  {% if dup and dup.customer_id==c.id %}selected{% endif %}>{{ c.name }}{% if c.country %} — {{ c.country }}{% endif %}</option>
+                {% endfor %}
+              </select>
+              <button type="button" class="btn-ghost" onclick="toggleNewCust()">+ جديد</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>الشركة المصدّرة (Exporter)</label>
+            <select name="company_id" id="company_id" required>
+              {% for co in companies %}
+              <option value="{{ co.id }}" {% if dup and dup.company_id==co.id %}selected{% endif %}>{{ co.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div id="nafeza" class="notice hidden">⚠️ عميل مصري — متطلبات <b>NAFEZA</b>: رقم <b>ACID</b> إلزامي + HS Code: {{ hs }}. تأكد من تعبئتهما.</div>
+
+        <!-- new customer inline -->
+        <div id="newCust" class="subcard hidden">
+          <div class="grid3">
+            <input id="nc_name" placeholder="اسم العميل *">
+            <input id="nc_contact" placeholder="الشخص المسؤول">
+            <input id="nc_phone" placeholder="الهاتف">
+            <input id="nc_country" placeholder="الدولة">
+            <input id="nc_tax" placeholder="الرقم الضريبي">
+            <select id="nc_currency">{% for cu in currencies %}<option>{{ cu }}</option>{% endfor %}</select>
+            <input id="nc_address" placeholder="العنوان" class="span3">
+          </div>
+          <button type="button" class="btn-gold sm" onclick="saveCustomer()">حفظ العميل</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-h">٢ · بيانات الشحنة</div>
+        <div class="grid3">
+          <div class="field"><label>نوع الفاتورة</label>
+            <select name="inv_type" id="inv_type">
+              <option value="Proforma" {% if dup and dup.inv_type=='Proforma' %}selected{% endif %}>Proforma — أولية</option>
+              <option value="Commercial" {% if dup and dup.inv_type=='Commercial' %}selected{% endif %}>Commercial — نهائية</option>
+            </select>
+          </div>
+          <div class="field"><label>Incoterm</label>
+            <select name="incoterm">
+              {% for t in ['EXW','FOB','CIF'] %}<option {% if dup and dup.incoterm==t %}selected{% endif %}>{{ t }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="field"><label>العملة</label>
+            <select name="currency" id="currency">{% for cu in currencies %}<option {% if cu=='USD' %}selected{% endif %}>{{ cu }}</option>{% endfor %}</select>
+          </div>
+          <div class="field"><label>ميناء التحميل</label><input name="port_loading" value="{{ dup.port_loading if dup else 'Mersin, Turkey' }}"></div>
+          <div class="field"><label>ميناء الوصول</label><input name="port_discharge" value="{{ dup.port_discharge if dup else '' }}"></div>
+          <div class="field"><label>ACID No <span id="acidReq" class="req hidden">*</span></label><input name="acid_no" id="acid_no" value="{{ dup.acid_no if dup else '' }}"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-h">٣ · بنود الأبواب</div>
+        <table class="items" id="itemsTable">
+          <thead><tr>
+            <th>#</th><th>الموديل</th><th>المقاس</th><th>الفتح</th>
+            <th>الكمية</th><th>سعر الوحدة ($)</th><th>الإجمالي</th><th class="secret">الربح</th><th></th>
+          </tr></thead>
+          <tbody id="itemsBody"></tbody>
+        </table>
+        <button type="button" class="btn-ghost" onclick="addRow()">+ إضافة بند</button>
+      </section>
+
+      <section class="card">
+        <div class="card-h">٤ · الشروط</div>
+        <div class="grid3">
+          <div class="field"><label>دفعة مقدمة %</label><input type="number" name="advance_pct" id="advance_pct" value="{{ dup.advance_pct if dup else 30 }}" oninput="recalc()"></div>
+          <div class="field"><label>المتبقي %</label><input type="number" id="balance_pct_view" value="70" readonly></div>
+          <div class="field"><label>مدة التسليم (أسابيع)</label><input type="number" name="delivery_weeks" value="{{ dup.delivery_weeks if dup else 6 }}"></div>
+          <div class="field span3"><label>ملاحظات</label><input name="notes" value="{{ dup.notes if dup else '' }}"></div>
+        </div>
+        <input type="hidden" name="balance_pct" id="balance_pct" value="70">
+      </section>
+    </div>
+
+    <!-- ============ right: review (secret) ============ -->
+    <aside class="col-side">
+      <div class="card sticky">
+        <div class="card-h">المراجعة قبل الإرسال <span class="secret-badge">سرّي</span></div>
+
+        <div class="totals">
+          <div class="tline"><span>المجموع الكلي</span><b id="t_total">$0.00</b></div>
+          <div class="tline sm"><span>دفعة مقدمة <i id="t_apct">30%</i></span><b id="t_adv">$0.00</b></div>
+          <div class="tline sm"><span>المتبقي قبل الشحن</span><b id="t_bal">$0.00</b></div>
+          <div class="tline fx"><span>المعادل <i id="fx_cur">—</i></span><b id="t_fx">—</b></div>
+        </div>
+
+        <div class="review-block">
+          <div class="rb-title">حارس الربح</div>
+          <div id="marginBox" class="margin-box">—</div>
+        </div>
+
+        <div class="review-block secret">
+          <div class="rb-title">عمولتك (لا تظهر للعميل)</div>
+          <div id="commBox" class="comm-box">$0.00</div>
+        </div>
+
+        <div class="review-block">
+          <div class="rb-title">حاسبة الكونتينر</div>
+          <div id="contBox" class="cont-box">—</div>
+        </div>
+
+        <div class="gen-actions">
+          <button type="submit" class="btn-gold big">توليد الفاتورة ⟶</button>
+          <p class="gen-hint">تُحفظ نسختا Proforma و Commercial تلقائياً كـ PDF.</p>
+        </div>
+      </div>
+    </aside>
+  </div>
+  </form>
+</div>
+
+<script id="models-data" type="application/json">{{ models_json|safe }}</script>
+<script id="dup-data" type="application/json">{{ dup_items_json|safe }}</script>
+<script>
+  window.CONTAINER_CAP = {{ container_cap }};
+  window.MARGIN = {red: {{ margin.red_pct }}, yellow: {{ margin.yellow_pct }}};
+</script>
+{% endblock %}

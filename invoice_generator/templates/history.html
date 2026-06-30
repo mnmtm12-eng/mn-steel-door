@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}سجل الفواتير{% endblock %}
+{% block body %}
+<div class="page">
+  <h2 class="page-title">سجل الفواتير</h2>
+  <form class="search" method="get">
+    <input name="q" value="{{ q }}" placeholder="بحث بالرقم أو اسم العميل أو التاريخ...">
+    <button class="btn-gold sm">بحث</button>
+    {% if q %}<a class="btn-ghost" href="{{ url_for('history') }}">إلغاء</a>{% endif %}
+  </form>
+
+  <table class="grid">
+    <thead><tr>
+      <th>رقم الفاتورة</th><th>التاريخ</th><th>العميل</th><th>النوع</th>
+      <th>الإجمالي</th><th>كونتينر</th><th>إجراءات</th>
+    </tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td class="mono">{{ r.invoice_no }}</td>
+        <td class="mono">{{ r.created_at }}</td>
+        <td>{{ r.cust_name }}</td>
+        <td><span class="pill {{ 'pill-c' if r.inv_type=='Commercial' else 'pill-p' }}">{{ r.inv_type }}</span></td>
+        <td class="mono">{{ r.currency }} {{ "%.2f"|format(r.total) }}</td>
+        <td class="mono c">{{ r.container_count }}</td>
+        <td class="acts">
+          <a href="{{ url_for('view_invoice', inv_id=r.id, copy='proforma') }}" target="_blank" title="عرض/طباعة">عرض</a>
+          <a href="{{ url_for('invoice_pdf', inv_id=r.id, copy='commercial') }}" target="_blank" title="PDF">PDF</a>
+          <a href="{{ url_for('duplicate_invoice', inv_id=r.id) }}" title="تكرار كقالب">تكرار</a>
+          <form method="post" action="{{ url_for('delete_invoice', inv_id=r.id) }}" onsubmit="return confirm('تأكيد حذف الفاتورة {{ r.invoice_no }}؟ سيتم أخذ نسخة احتياطية أولاً.')">
+            <button class="del">حذف</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7" class="empty">لا توجد فواتير بعد.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

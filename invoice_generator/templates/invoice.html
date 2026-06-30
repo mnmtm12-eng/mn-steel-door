@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ inv.invoice_no }} — {{ copy_type }}</title>
+<style>
+@page { size: A4; margin: 14mm 13mm; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Helvetica Neue', Arial, sans-serif; color:#1a1d21; font-size:11px; line-height:1.5; padding-top:52px; }
+.num { font-family:'Oswald','Helvetica Neue',Arial,sans-serif; }
+.sheet { width:100%; }
+/* header */
+.head { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid #0C0E10; padding-bottom:12px; }
+.logo-wrap { display:flex; align-items:center; gap:12px; }
+.logo { width:54px; height:54px; background:#0C0E10; color:#C9A24B; font-family:'Oswald'; font-weight:700;
+        font-size:22px; display:flex; align-items:center; justify-content:center; border-radius:6px; letter-spacing:1px; }
+.brand-t { font-family:'Oswald'; font-weight:600; font-size:20px; letter-spacing:1px; color:#0C0E10; }
+.brand-s { font-size:10px; color:#6b7177; letter-spacing:3px; text-transform:uppercase; }
+.doc-type { text-align:right; }
+.doc-type .t { font-family:'Oswald'; font-size:22px; font-weight:600; color:#0C0E10; text-transform:uppercase; letter-spacing:1px; }
+.doc-type .badge { display:inline-block; margin-top:4px; font-size:9px; letter-spacing:2px; color:#9a7d2e;
+        border:1px solid #C9A24B; padding:2px 8px; border-radius:3px; text-transform:uppercase; }
+/* meta */
+.meta { display:flex; justify-content:space-between; margin:10px 0 16px; font-size:11px; }
+.meta .num { font-weight:600; font-size:13px; color:#0C0E10; }
+.meta-label { color:#6b7177; font-size:9px; text-transform:uppercase; letter-spacing:1px; }
+/* parties */
+.parties { display:flex; gap:14px; margin-bottom:14px; }
+.party { flex:1; border:1px solid #e1e4e8; border-radius:6px; padding:11px 13px; }
+.party h3 { font-family:'Oswald'; font-size:10px; letter-spacing:2px; color:#9a7d2e; text-transform:uppercase; margin-bottom:6px; border-bottom:1px solid #eee; padding-bottom:4px; }
+.party .nm { font-weight:700; font-size:12px; color:#0C0E10; }
+.party p { color:#3b4046; margin-top:2px; }
+.party .k { color:#8b9197; }
+/* shipment strip */
+.ship { display:flex; flex-wrap:wrap; background:#f7f8f9; border:1px solid #e1e4e8; border-radius:6px; margin-bottom:14px; }
+.ship div { flex:1 1 16%; padding:8px 11px; border-left:1px solid #e8eaed; min-width:90px; }
+.ship div:last-child { border-left:none; }
+.ship .k { font-size:8px; letter-spacing:1px; text-transform:uppercase; color:#8b9197; display:block; }
+.ship .v { font-weight:600; color:#0C0E10; font-size:11px; }
+/* items */
+table.items { width:100%; border-collapse:collapse; margin-bottom:14px; }
+table.items th { background:#0C0E10; color:#fff; font-size:9px; letter-spacing:1px; text-transform:uppercase;
+        padding:8px 9px; text-align:left; }
+table.items th.r, table.items td.r { text-align:right; }
+table.items th.c, table.items td.c { text-align:center; }
+table.items td { padding:9px; border-bottom:1px solid #ececec; vertical-align:top; }
+table.items tr:nth-child(even) td { background:#fafbfc; }
+.it-desc b { color:#0C0E10; }
+.it-desc span { color:#7b8187; font-size:10px; }
+/* totals */
+.foot { display:flex; gap:16px; }
+.foot .left { flex:1.3; }
+.foot .right { flex:1; }
+.terms-box { border:1px solid #e1e4e8; border-radius:6px; padding:11px 13px; margin-bottom:10px; }
+.terms-box h4 { font-family:'Oswald'; font-size:10px; letter-spacing:1px; text-transform:uppercase; color:#9a7d2e; margin-bottom:6px; }
+.pay-split { width:100%; border-collapse:collapse; margin-top:4px; }
+.pay-split td { padding:4px 0; font-size:11px; }
+.pay-split .amt { text-align:right; font-weight:600; }
+.bank td { padding:3px 0; }
+.bank .k { color:#8b9197; width:38%; }
+.tot-table { width:100%; border-collapse:collapse; }
+.tot-table td { padding:7px 11px; }
+.tot-table .lab { color:#5b6066; }
+.tot-table .val { text-align:right; font-weight:600; }
+.tot-grand { background:#0C0E10; color:#fff; }
+.tot-grand .val { color:#C9A24B; font-family:'Oswald'; font-size:18px; }
+.fx-note { font-size:9px; color:#8b9197; text-align:right; margin-top:3px; }
+/* auth note */
+.auth { margin-top:14px; border:1px dashed #C9A24B; border-radius:6px; padding:9px 12px; background:#fffdf6;
+        font-size:10px; color:#7a6320; text-align:center; letter-spacing:1px; }
+.sign { display:flex; justify-content:space-between; margin-top:26px; }
+.sign div { width:42%; text-align:center; }
+.sign .line { border-top:1px solid #999; margin-top:30px; padding-top:5px; font-size:10px; color:#6b7177; }
+.print-bar { position:fixed; top:0; left:0; right:0; background:#0C0E10; color:#fff; padding:9px 18px;
+        display:flex; gap:10px; justify-content:center; font-family:'Cairo',sans-serif; }
+.print-bar a, .print-bar button { background:#C9A24B; color:#0C0E10; border:none; padding:7px 18px; border-radius:5px;
+        font-weight:700; cursor:pointer; text-decoration:none; font-size:13px; }
+.print-bar a.alt { background:#23272d; color:#fff; }
+@media print { .print-bar { display:none; } body { padding-top:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+</style>
+</head>
+<body>
+{% set cur = inv.currency or 'USD' %}
+<div class="print-bar">
+  <button onclick="window.print()">🖨️ طباعة</button>
+  <a class="alt" href="/invoice/{{ inv.id }}/pdf?copy={{ copy_type|lower }}">⬇️ PDF</a>
+  <a class="alt" href="/invoice/{{ inv.id }}?copy=proforma">Proforma</a>
+  <a class="alt" href="/invoice/{{ inv.id }}?copy=commercial">Commercial</a>
+  <a class="alt" href="/">＋ جديدة</a>
+</div>
+
+<div class="sheet">
+  <div class="head">
+    <div class="logo-wrap">
+      <div class="logo">MN</div>
+      <div><div class="brand-t">MN STEEL DOOR</div><div class="brand-s">Steel Doors · Export</div></div>
+    </div>
+    <div class="doc-type">
+      <div class="t">{{ copy_type }} Invoice</div>
+      <div class="badge">{% if copy_type=='Commercial' %}Final · Commercial{% else %}Preliminary · Proforma{% endif %}</div>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div><span class="meta-label">Invoice No.</span><br><span class="num">{{ inv.invoice_no }}</span></div>
+    <div><span class="meta-label">Date</span><br><span class="num">{{ inv.created_at }}</span></div>
+    <div><span class="meta-label">HS Code</span><br><span class="num">{{ hs }}</span></div>
+    <div><span class="meta-label">Origin</span><br><span class="num">{{ origin }}</span></div>
+  </div>
+
+  <div class="parties">
+    <div class="party">
+      <h3>Exporter</h3>
+      <div class="nm">{{ company.name }}</div>
+      <p>{{ company.address }}</p>
+      {% if company.phone %}<p><span class="k">Tel:</span> {{ company.phone }}</p>{% endif %}
+      {% if company.email %}<p><span class="k">Email:</span> {{ company.email }}</p>{% endif %}
+    </div>
+    <div class="party">
+      <h3>Consignee</h3>
+      <div class="nm">{{ cust.name }}</div>
+      {% if cust.contact %}<p>{{ cust.contact }}</p>{% endif %}
+      {% if cust.address %}<p>{{ cust.address }}</p>{% endif %}
+      {% if cust.phone %}<p><span class="k">Tel:</span> {{ cust.phone }}</p>{% endif %}
+      {% if cust.tax_no %}<p><span class="k">Tax No:</span> {{ cust.tax_no }}</p>{% endif %}
+    </div>
+  </div>
+
+  <div class="ship">
+    <div><span class="k">Incoterm</span><span class="v">{{ inv.incoterm }}</span></div>
+    <div><span class="k">Port of Loading</span><span class="v">{{ inv.port_loading or '—' }}</span></div>
+    <div><span class="k">Port of Discharge</span><span class="v">{{ inv.port_discharge or '—' }}</span></div>
+    <div><span class="k">ACID No</span><span class="v">{{ inv.acid_no or '—' }}</span></div>
+    <div><span class="k">Country</span><span class="v">{{ cust.country or '—' }}</span></div>
+  </div>
+
+  <table class="items">
+    <thead><tr>
+      <th class="c" style="width:5%">#</th>
+      <th style="width:47%">Description</th>
+      <th class="c" style="width:10%">Qty</th>
+      <th class="r" style="width:19%">Unit Price ({{ cur }})</th>
+      <th class="r" style="width:19%">Amount ({{ cur }})</th>
+    </tr></thead>
+    <tbody>
+      {% for it in items %}
+      <tr>
+        <td class="c num">{{ loop.index }}</td>
+        <td class="it-desc"><b>{{ it.name }}</b> &nbsp; <span>{{ it.size }} cm · Frame {{ frame }} cm · Opening {{ it.opening }}</span></td>
+        <td class="c num">{{ it.qty|int }}</td>
+        <td class="r num">{{ "%.2f"|format(it.unit_price) }}</td>
+        <td class="r num">{{ "%.2f"|format(it.line_total if it.line_total is defined else it.qty*it.unit_price) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="foot">
+    <div class="left">
+      <div class="terms-box">
+        <h4>Payment Terms</h4>
+        <table class="pay-split">
+          <tr><td>{{ inv.advance_pct|int }}% advance payment — before production</td><td class="amt num">{{ cur }} {{ "%.2f"|format(inv.advance_amt) }}</td></tr>
+          <tr><td>{{ inv.balance_pct|int }}% balance — before shipment</td><td class="amt num">{{ cur }} {{ "%.2f"|format(inv.balance_amt) }}</td></tr>
+        </table>
+      </div>
+      <div class="terms-box">
+        <h4>Beneficiary Bank Details</h4>
+        <table class="bank">
+          <tr><td class="k">Beneficiary</td><td>{{ company.name }}</td></tr>
+          <tr><td class="k">Bank</td><td>{{ company.bank_name }}</td></tr>
+          <tr><td class="k">Branch</td><td>{{ company.branch }} {% if company.branch_code %}(Code {{ company.branch_code }}){% endif %}</td></tr>
+          <tr><td class="k">IBAN</td><td class="num">{{ company.iban }}</td></tr>
+          <tr><td class="k">SWIFT</td><td class="num">{{ company.swift }}</td></tr>
+        </table>
+      </div>
+      <div class="terms-box"><h4>Delivery</h4>Delivery time: <b>{{ inv.delivery_weeks }} weeks</b> after advance payment.
+      {% if inv.notes %}<br>{{ inv.notes }}{% endif %}</div>
+    </div>
+    <div class="right">
+      <table class="tot-table">
+        <tr><td class="lab">Subtotal</td><td class="val num">{{ cur }} {{ "%.2f"|format(inv.subtotal) }}</td></tr>
+        <tr><td class="lab">Total Quantity</td><td class="val num">{{ items|sum(attribute='qty')|int }} doors</td></tr>
+        {% if inv.container_count %}<tr><td class="lab">Containers</td><td class="val num">{{ inv.container_count }}</td></tr>{% endif %}
+        <tr class="tot-grand"><td>TOTAL</td><td class="val num">{{ cur }} {{ "%.2f"|format(inv.total) }}</td></tr>
+      </table>
+      {% if cur != 'USD' and inv.fx_rate %}<div class="fx-note">≈ {{ "{:,.0f}".format(inv.total) }} {{ cur }} &nbsp;(1 USD = {{ "%.2f"|format(inv.fx_rate) }} {{ cur }})</div>{% endif %}
+    </div>
+  </div>
+
+  <div class="auth">THIS INVOICE IS AUTHENTIC AND APPROVED BY THE EXPORTER</div>
+
+  <div class="sign">
+    <div><div class="line">Exporter — {{ company.name }}</div></div>
+    <div><div class="line">Authorized Signature &amp; Stamp</div></div>
+  </div>
+</div>
+</body>
+</html>
