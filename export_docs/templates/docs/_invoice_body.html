@@ -1,0 +1,52 @@
+{% set cur = s.currency or 'USD' %}
+<table class="items">
+  <thead><tr>
+    <th class="c" style="width:5%">#</th>
+    <th style="width:43%">Description</th>
+    <th class="c" style="width:11%">Qty</th>
+    <th class="r" style="width:20%">Unit Price ({{ cur }})</th>
+    <th class="r" style="width:21%">Amount ({{ cur }})</th>
+  </tr></thead>
+  <tbody>
+    {% for it in items %}
+    <tr>
+      <td class="c num">{{ loop.index }}</td>
+      <td class="it-desc"><b>{{ it.name }}</b> &nbsp; <span>{{ it.width }}×{{ it.height }}×{{ it.beam }} cm</span></td>
+      <td class="c num">{{ it.qty|int }}</td>
+      <td class="r num">{{ "%.2f"|format(it.unit_price) }}</td>
+      <td class="r num">{{ "%.2f"|format(it.line_total if it.line_total is defined else it.qty*it.unit_price) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="foot">
+  <div class="left">
+    {% if s.payment_terms %}<div class="box"><h4>Payment Terms</h4>{{ s.payment_terms }}</div>{% endif %}
+    {% if company.iban or company.bank_name %}
+    <div class="box"><h4>Beneficiary Bank Details</h4>
+      <table class="bank">
+        <tr><td class="k">Beneficiary</td><td>{{ company.name }}</td></tr>
+        {% if company.bank_name %}<tr><td class="k">Bank</td><td>{{ company.bank_name }}</td></tr>{% endif %}
+        {% if company.branch %}<tr><td class="k">Branch</td><td>{{ company.branch }} {% if company.branch_code %}(Code {{ company.branch_code }}){% endif %}</td></tr>{% endif %}
+        {% if company.iban %}<tr><td class="k">IBAN</td><td class="num">{{ company.iban }}</td></tr>{% endif %}
+        {% if company.swift %}<tr><td class="k">SWIFT</td><td class="num">{{ company.swift }}</td></tr>{% endif %}
+      </table>
+    </div>{% endif %}
+  </div>
+  <div class="right">
+    <table class="tot-table">
+      <tr><td class="lab">Subtotal</td><td class="val num">{{ cur }} {{ "%.2f"|format(s.subtotal) }}</td></tr>
+      <tr><td class="lab">Total Quantity</td><td class="val num">{{ s.qty_total }} doors</td></tr>
+      {% if s.container_count %}<tr><td class="lab">Containers</td><td class="val num">{{ s.container_count }}</td></tr>{% endif %}
+      <tr class="tot-grand"><td>TOTAL</td><td class="val num">{{ cur }} {{ "%.2f"|format(s.total) }}</td></tr>
+    </table>
+    {% if cur != 'USD' and s.fx_rate %}<div style="font-size:9px;color:#8b9197;text-align:right;margin-top:3px">≈ {{ "{:,.0f}".format(s.total) }} {{ cur }} (1 USD = {{ "%.2f"|format(s.fx_rate) }} {{ cur }})</div>{% endif %}
+  </div>
+</div>
+
+<div class="auth">THIS INVOICE IS AUTHENTIC AND APPROVED BY THE EXPORTER</div>
+<div class="sign">
+  <div><div class="line">Exporter — {{ company.name }}</div></div>
+  <div><div class="line">Authorized Signature &amp; Stamp</div></div>
+</div>

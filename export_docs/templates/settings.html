@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}الإعدادات{% endblock %}
+{% block body %}
+<div class="page">
+  <h2 class="page-title">الإعدادات</h2>
+
+  <section class="card">
+    <div class="card-h"><span class="t">الشركات المُصدّرة (5)</span></div>
+    {% for co in companies %}
+    <form method="post" class="company-form">
+      <input type="hidden" name="section" value="company"><input type="hidden" name="id" value="{{ co.id }}">
+      <div class="grid3">
+        <input name="name" value="{{ co.name }}" placeholder="اسم الشركة" class="span-all">
+        <input name="address" value="{{ co.address }}" placeholder="العنوان" class="span-all">
+        <input name="phone" value="{{ co.phone }}" placeholder="الهاتف"><input name="email" value="{{ co.email }}" placeholder="الإيميل">
+        <input name="bank_name" value="{{ co.bank_name }}" placeholder="البنك"><input name="branch" value="{{ co.branch }}" placeholder="الفرع">
+        <input name="branch_code" value="{{ co.branch_code }}" placeholder="كود الفرع"><input name="swift" value="{{ co.swift }}" placeholder="SWIFT">
+        <input name="iban" value="{{ co.iban }}" placeholder="IBAN" class="span-all">
+      </div>
+      <button class="btn sm" style="margin-top:10px">حفظ {{ co.name or 'الشركة' }}</button>
+      <hr class="s">
+    </form>
+    {% endfor %}
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="t">أسعار الموديلات الافتراضية</span></div>
+    <form method="post">
+      <input type="hidden" name="section" value="models">
+      <table class="tbl"><thead><tr><th>الموديل</th><th>المقاس</th><th>السعر الافتراضي (USD)</th></tr></thead>
+        <tbody>{% for m in models %}<tr><td>{{ m.name }}</td><td class="mono">{{ m.width }}×{{ m.height }}×{{ m.beam }}</td>
+          <td><input type="number" step="0.01" name="price_{{ m.id }}" value="{{ '%.2f'|format(m.default_price) }}" style="max-width:140px;margin:0 auto"></td></tr>{% endfor %}</tbody>
+      </table>
+      <button class="btn sm" style="margin-top:14px">حفظ الأسعار</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="t">شروط الدفع الافتراضية</span></div>
+    <form method="post">
+      <input type="hidden" name="section" value="payment">
+      <textarea name="default_payment" rows="2">{{ default_payment }}</textarea>
+      <button class="btn sm" style="margin-top:12px">حفظ</button>
+    </form>
+  </section>
+</div>
+{% endblock %}

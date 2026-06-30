@@ -1,0 +1,30 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>{{ doc.label }} — {{ s.ref_no }}</title>
+{% include 'docs/_style.html' %}</head><body>
+{% include 'docs/_header.html' %}
+
+<div style="text-align:center;margin:6px 0 16px">
+  <div style="font-family:'Oswald';font-size:18px;letter-spacing:2px;color:#1e2b48;text-transform:uppercase">Certificate of Origin</div>
+  <div style="font-size:10px;color:#6b7177;letter-spacing:1px">شهادة منشأ</div>
+</div>
+
+<table class="items">
+  <thead><tr><th class="c" style="width:6%">#</th><th style="width:48%">Description of Goods</th><th class="c">Quantity</th><th class="c">HS Code</th><th class="c">Country of Origin</th></tr></thead>
+  <tbody>
+    {% for it in items %}
+    <tr><td class="c num">{{ loop.index }}</td>
+      <td class="it-desc"><b>{{ it.name }}</b> <span>Steel Door · {{ it.width }}×{{ it.height }}×{{ it.beam }} cm</span></td>
+      <td class="c num">{{ it.qty|int }} pcs</td><td class="c num">{{ hs }}</td>
+      <td class="c" style="font-weight:600;color:#1e2b48">{{ origin }}</td></tr>
+    {% endfor %}
+    <tr style="background:#f5f7fa"><td></td><td style="font-weight:700;color:#1e2b48">TOTAL</td><td class="c num" style="font-weight:700;color:#1e2b48">{{ s.qty_total }} pcs</td><td colspan="2"></td></tr>
+  </tbody>
+</table>
+
+<div class="box" style="margin-top:6px"><h4>Declaration</h4>
+We hereby certify that the goods described above are of <b>{{ origin }}</b> origin, manufactured in {{ origin }}, and that the information stated in this certificate is true and correct.
+<br>Reference: <span class="num">{{ s.ref_no }}</span> · Consignee: {{ cust.name }}{% if cust.country %} ({{ cust.country }}){% endif %}.
+</div>
+
+<div class="auth">THIS CERTIFICATE OF ORIGIN IS AUTHENTIC AND APPROVED BY THE EXPORTER</div>
+<div class="sign"><div><div class="line">Exporter — {{ company.name }}</div></div><div><div class="line">Authorized Signature, Stamp &amp; Chamber of Commerce</div></div></div>
+</body></html>

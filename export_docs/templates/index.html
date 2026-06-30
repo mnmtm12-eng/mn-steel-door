@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}وثيقة جديدة — AKVA Export Docs{% endblock %}
+{% block body %}
+<div class="page">
+  <h2 class="page-title">إنشاء وثائق تصدير {% if dup %}<span class="tag">مكرّرة من {{ dup.ref_no }}</span>{% endif %}</h2>
+
+  <form id="docForm" method="post" action="{{ url_for('generate') }}">
+  <input type="hidden" name="items_json" id="items_json">
+  <input type="hidden" name="containers_json" id="containers_json">
+  <input type="hidden" name="company_id" id="company_id" value="{{ (dup.company_id if dup else companies[0].id) }}">
+
+  <!-- 1. shipment -->
+  <section class="card">
+    <div class="card-h"><span class="t"><span class="num-badge">1</span> بيانات الشحنة</span></div>
+    <div class="field span-all" style="margin-bottom:16px">
+      <label>الشركة المُصدّرة (Exporter)</label>
+      <div class="chips" id="companyChips">
+        {% for co in companies %}
+        <div class="chip {{ 'sel' if (dup and dup.company_id==co.id) or (not dup and loop.first) }}" data-id="{{ co.id }}" onclick="pickCompany(this)">{{ co.name }}</div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="field">
+        <label>الزبون (Consignee)</label>
+        <div style="display:flex;gap:8px">
+          <select name="customer_id" id="customer_id" required>
+            {% for c in customers %}<option value="{{ c.id }}" data-country="{{ c.country }}" data-currency="{{ c.currency }}"
+              {% if dup and dup.customer_id==c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+          </select>
+          <button type="button" class="btn ghost sm" onclick="document.getElementById('newCust').classList.toggle('hidden')">+ جديد</button>
+        </div>
+      </div>
+      <div class="field"><label>تاريخ الفاتورة</label><input type="date" name="date" value="{{ dup.created_at if dup else '' }}"></div>
+      <div class="field"><label>العملة</label><select name="currency" id="currency">{% for cu in currencies %}<option {% if cu=='USD' %}selected{% endif %}>{{ cu }}</option>{% endfor %}</select></div>
+      <div class="field"><label>INCOTERM</label><select name="incoterm">{% for t in incoterms %}<option {% if dup and dup.incoterm==t %}selected{% endif %}>{{ t }}</option>{% endfor %}</select></div>
+      <div class="field"><label>ميناء التحميل</label><input name="port_loading" value="{{ dup.port_loading if dup else 'MERSIN, TURKEY' }}"></div>
+      <div class="field"><label>ميناء الوصول</label><input name="port_discharge" value="{{ dup.port_discharge if dup else '' }}"></div>
+      <div class="field"><label>رقم ACID <span id="acidReq" class="hidden" style="color:var(--red)">*</span></label><input name="acid_no" id="acid_no" value="{{ dup.acid_no if dup else '' }}" placeholder="أدخل رقم ACID إن وجد"></div>
+      <div class="field span-all"><label>شروط الدفع / PAYMENT TERMS</label>
+        <textarea name="payment_terms" rows="2">{{ dup.payment_terms if dup else default_payment }}</textarea></div>
+    </div>
+    <div id="nafeza" class="notice hidden">⚠️ زبون مصري — متطلبات <b>NAFEZA</b>: رقم <b>ACID</b> إلزامي · HS Code: {{ hs }}.</div>
+
+    <div id="newCust" class="subcard hidden">
+      <div class="grid3">
+        <input id="nc_name" placeholder="اسم الزبون *"><input id="nc_contact" placeholder="الشخص المسؤول">
+        <input id="nc_phone" placeholder="الهاتف"><input id="nc_country" placeholder="الدولة">
+        <input id="nc_tax" placeholder="الرقم الضريبي"><select id="nc_currency">{% for cu in currencies %}<option>{{ cu }}</option>{% endfor %}</select>
+        <input id="nc_address" placeholder="العنوان" class="span-all">
+      </div>
+      <button type="button" class="btn sm" style="margin-top:12px" onclick="saveCustomer()">حفظ الزبون</button>
+    </div>
+  </section>
+
+  <!-- 2. doors -->
+  <section class="card">
+    <div class="card-h"><span class="t"><span class="num-badge">2</span> جدول الأبواب</span>
+      <button type="button" class="btn sm" onclick="addRow()">+ إضافة صف</button></div>
+    <table class="tbl" id="doorsTbl">
+      <thead><tr><th>#</th><th>نوع الباب</th><th>العرض (cm)</th><th>الارتفاع (cm)</th><th>سماكة العارضة (cm)</th><th>العدد</th><th>سعر الوحدة (USD)</th><th>الإجمالي (USD)</th><th></th></tr></thead>
+      <tbody id="doorsBody"></tbody>
+      <tfoot><tr class="t-total-row"><td colspan="5">الإجمالي الكلي</td><td id="sumQty" class="num">0</td><td></td><td id="sumTotal" class="num">$0.00</td><td></td></tr></tfoot>
+    </table>
+  </section>
+
+  <!-- 3. containers -->
+  <section class="card">
+    <div class="card-h"><span class="t"><span class="num-badge">3</span> بيانات الحاويات (للباكنج ليست)</span>
+      <button type="button" class="btn sm" onclick="addCont()">+ إضافة حاوية</button></div>
+    <table class="tbl" id="contTbl">
+      <thead><tr><th>#</th><th>رقم الكونتينر</th><th>Seal No</th><th>المحتوى</th><th>الوزن (KG)</th><th></th></tr></thead>
+      <tbody id="contBody"></tbody>
+    </table>
+  </section>
+
+  <!-- 4. documents -->
+  <section class="card">
+    <div class="card-h"><span class="t"><span class="num-badge">4</span> الوثائق المطلوبة</span></div>
+    <div class="docs-grid">
+      {% for key, d in doc_types.items() %}
+      <label class="docchk {{ 'on' if (dup and key in dup.docs) or (not dup and key in ['commercial','packing','proforma']) }}">
+        <input type="checkbox" name="docs" value="{{ key }}" {% if (dup and key in dup.docs) or (not dup and key in ['commercial','packing','proforma']) %}checked{% endif %} onchange="this.closest('.docchk').classList.toggle('on',this.checked);buildPath()">
+        <span><span class="d-en">{{ d.label }}</span><br><span class="d-ar">{{ d.ar }}</span></span>
+      </label>
+      {% endfor %}
+    </div>
+    <div style="margin-top:18px">
+      <label>📁 الحفظ التلقائي في:</label>
+      <div class="pathbox" id="pathPreview"></div>
+    </div>
+  </section>
+
+  <!-- summary + generate -->
+  <div class="sumbar">
+    <div class="it"><span class="k">عدد الأبواب</span><span class="v num" id="bQty">0</span></div>
+    <div class="it"><span class="k">الإجمالي</span><span class="v num gold" id="bTotal">$0.00</span></div>
+    <div class="it"><span class="k">الحاويات</span><span class="v num" id="bCont">0</span></div>
+    <div class="it"><span class="k">الوزن الإجمالي</span><span class="v num" id="bWeight">0 KG</span></div>
+    <button type="submit" class="btn navy big" style="max-width:280px">⟶ توليد الوثائق</button>
+  </div>
+  </form>
+</div>
+
+<script id="models-data" type="application/json">{{ models_json|safe }}</script>
+<script id="dup-data" type="application/json">{{ (dup_json if dup else 'null')|safe }}</script>
+<script>
+  window.OUT_BASE = "{{ out_base }}";
+  window.DOC_FOLDERS = {{ doc_types|tojson }};
+</script>
+{% endblock %}

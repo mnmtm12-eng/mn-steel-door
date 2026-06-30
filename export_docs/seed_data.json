@@ -1,0 +1,35 @@
+{
+  "companies": [
+    {"name": "SAIROGULLARI DIS TICARET LTD STI", "address": "OYMAAGAC MAH. 5062 CAD, KAYSERI / TURKEY",
+     "phone": "+90 541 924 98 70", "email": "talat@sairogullari.com",
+     "bank_name": "Türkiye İş Bankası A.Ş.", "branch": "Kayseri O.S.B.", "branch_code": "4000",
+     "iban": "TR26 0006 4000 0025 3060 0556 24", "swift": "ISBKTRIS"},
+    {"name": "TLT", "address": "", "phone": "", "email": "", "bank_name": "", "branch": "", "branch_code": "", "iban": "", "swift": ""},
+    {"name": "RANGE", "address": "", "phone": "", "email": "", "bank_name": "", "branch": "", "branch_code": "", "iban": "", "swift": ""},
+    {"name": "NEWA GROUP", "address": "", "phone": "", "email": "", "bank_name": "", "branch": "", "branch_code": "", "iban": "", "swift": ""},
+    {"name": "MFY TURİZM", "address": "", "phone": "", "email": "", "bank_name": "", "branch": "", "branch_code": "", "iban": "", "swift": ""}
+  ],
+  "customers": [
+    {"name": "MODERN STYLE FOR IMPORT & EXPORT", "contact": "SAAD ZAKY FAHIM", "address": "99 Mostafa El-Nahhas St, Nasr City, 8th District, Cairo, Egypt", "phone": "+20 121 116 4530", "tax_no": "741496100", "country": "Egypt", "currency": "EGP"},
+    {"name": "محمود — الأردن", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Jordan", "currency": "JOD"},
+    {"name": "علي الجبوري — العراق", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Iraq", "currency": "IQD"},
+    {"name": "مينا — مصر", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Egypt", "currency": "EGP"},
+    {"name": "بيت سلطان", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "", "currency": "USD"},
+    {"name": "عمرو إبراهيم — مصر", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Egypt", "currency": "EGP"},
+    {"name": "محمود — ليبيا", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Libya", "currency": "LYD"},
+    {"name": "عصام — فلسطين", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Palestine", "currency": "USD"},
+    {"name": "التشادي", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Chad", "currency": "USD"},
+    {"name": "ياسر مرسي", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Egypt", "currency": "EGP"},
+    {"name": "محمد نعمة", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Turkey", "currency": "USD"},
+    {"name": "محمد — الأردن", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Jordan", "currency": "JOD"},
+    {"name": "إيمان السيد", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Egypt", "currency": "EGP"},
+    {"name": "الحرام — صلاح", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "", "currency": "USD"},
+    {"name": "صلاح الشيخ — مصر", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Egypt", "currency": "EGP"},
+    {"name": "السعودي — علي العراق", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Iraq", "currency": "IQD"},
+    {"name": "عبدالله — مصر", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "Egypt", "currency": "EGP"},
+    {"name": "Elite Door (إيليت)", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "", "currency": "USD"},
+    {"name": "Tetra Door (تيترا)", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "", "currency": "USD"},
+    {"name": "Strong (سترونج)", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "", "currency": "USD"},
+    {"name": "STE (إس تي إي)", "contact": "", "address": "", "phone": "", "tax_no": "", "country": "", "currency": "USD"}
+  ]
+}

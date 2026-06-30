@@ -1,0 +1,53 @@
+<style>
+@page { size: A4; margin: 14mm 13mm; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Helvetica Neue', Arial, sans-serif; color:#1a1d21; font-size:11px; line-height:1.5; padding-top:50px; }
+.num { font-family:'Oswald','Helvetica Neue',Arial,sans-serif; }
+.head { display:flex; justify-content:space-between; align-items:flex-start; border-bottom:3px solid #1e2b48; padding-bottom:12px; }
+.logo-wrap { display:flex; align-items:center; gap:12px; }
+.logo { width:54px; height:54px; background:#1e2b48; color:#fff; font-family:'Oswald'; font-weight:700; font-size:21px; display:flex; align-items:center; justify-content:center; border-radius:7px; }
+.brand-t { font-family:'Oswald'; font-weight:600; font-size:19px; letter-spacing:.5px; color:#1e2b48; }
+.brand-s { font-size:9px; color:#6b7177; letter-spacing:3px; text-transform:uppercase; }
+.doc-type { text-align:right; }
+.doc-type .t { font-family:'Oswald'; font-size:21px; font-weight:600; color:#1e2b48; text-transform:uppercase; }
+.doc-type .badge { display:inline-block; margin-top:4px; font-size:8px; letter-spacing:2px; color:#27608b; border:1px solid #2f6f9f; padding:2px 8px; border-radius:3px; text-transform:uppercase; }
+.meta { display:flex; justify-content:space-between; margin:10px 0 15px; }
+.meta .num { font-weight:600; font-size:13px; color:#1e2b48; }
+.meta-label { color:#6b7177; font-size:8px; text-transform:uppercase; letter-spacing:1px; }
+.parties { display:flex; gap:13px; margin-bottom:13px; }
+.party { flex:1; border:1px solid #e1e4e8; border-radius:6px; padding:11px 13px; }
+.party h3 { font-family:'Oswald'; font-size:9px; letter-spacing:2px; color:#27608b; text-transform:uppercase; margin-bottom:6px; border-bottom:1px solid #eee; padding-bottom:4px; }
+.party .nm { font-weight:700; font-size:12px; color:#1e2b48; }
+.party p { color:#3b4046; margin-top:2px; }
+.party .k { color:#8b9197; }
+.ship { display:flex; flex-wrap:wrap; background:#f5f7fa; border:1px solid #e1e4e8; border-radius:6px; margin-bottom:14px; }
+.ship div { flex:1 1 18%; padding:8px 11px; border-left:1px solid #e8eaed; min-width:90px; }
+.ship div:last-child { border-left:none; }
+.ship .k { font-size:8px; letter-spacing:1px; text-transform:uppercase; color:#8b9197; display:block; }
+.ship .v { font-weight:600; color:#1e2b48; }
+table.items { width:100%; border-collapse:collapse; margin-bottom:13px; }
+table.items th { background:#1e2b48; color:#fff; font-size:9px; letter-spacing:.5px; text-transform:uppercase; padding:8px 9px; text-align:left; }
+table.items th.r, table.items td.r { text-align:right; }
+table.items th.c, table.items td.c { text-align:center; }
+table.items td { padding:8px 9px; border-bottom:1px solid #ececec; }
+table.items tr:nth-child(even) td { background:#fafbfc; }
+.it-desc b { color:#1e2b48; } .it-desc span { color:#7b8187; font-size:10px; }
+.foot { display:flex; gap:15px; }
+.foot .left { flex:1.3; } .foot .right { flex:1; }
+.box { border:1px solid #e1e4e8; border-radius:6px; padding:11px 13px; margin-bottom:9px; }
+.box h4 { font-family:'Oswald'; font-size:9px; letter-spacing:1px; text-transform:uppercase; color:#27608b; margin-bottom:6px; }
+.bank td { padding:3px 0; } .bank .k { color:#8b9197; width:38%; }
+.pay td { padding:4px 0; } .pay .amt { text-align:right; font-weight:600; }
+.tot-table { width:100%; border-collapse:collapse; }
+.tot-table td { padding:7px 11px; } .tot-table .lab { color:#5b6066; } .tot-table .val { text-align:right; font-weight:600; }
+.tot-grand { background:#1e2b48; color:#fff; } .tot-grand .val { color:#fff; font-family:'Oswald'; font-size:17px; }
+.auth { margin-top:13px; border:1px dashed #2f6f9f; border-radius:6px; padding:9px 12px; background:#f3f8fc; font-size:10px; color:#27608b; text-align:center; letter-spacing:1px; }
+.sign { display:flex; justify-content:space-between; margin-top:26px; }
+.sign div { width:42%; text-align:center; }
+.sign .line { border-top:1px solid #999; margin-top:30px; padding-top:5px; font-size:10px; color:#6b7177; }
+.letter p { margin-bottom:9px; } .letter .lead { font-size:12px; }
+.print-bar { position:fixed; top:0; left:0; right:0; background:#1e2b48; color:#fff; padding:9px 18px; display:flex; gap:9px; justify-content:center; font-family:'Cairo',sans-serif; z-index:9; }
+.print-bar button, .print-bar a { background:#2f6f9f; color:#fff; border:none; padding:7px 16px; border-radius:6px; font-weight:700; cursor:pointer; text-decoration:none; font-size:13px; }
+.print-bar a.alt { background:#34405e; }
+@media print { .print-bar { display:none; } body { padding-top:0; -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+</style>

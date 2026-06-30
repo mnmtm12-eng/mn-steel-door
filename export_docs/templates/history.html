@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}السجل{% endblock %}
+{% block body %}
+<div class="page">
+  <h2 class="page-title">سجل الوثائق</h2>
+  <form class="search" method="get">
+    <input name="q" value="{{ q }}" placeholder="بحث بالمرجع أو الزبون أو التاريخ...">
+    <button class="btn sm">بحث</button>
+    {% if q %}<a class="btn ghost sm" href="{{ url_for('history') }}">إلغاء</a>{% endif %}
+  </form>
+  <table class="tbl">
+    <thead><tr><th>المرجع</th><th>التاريخ</th><th>الزبون</th><th>الوثائق</th><th>الإجمالي</th><th>أبواب</th><th>إجراءات</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td class="mono">{{ r.ref_no }}</td>
+        <td class="mono">{{ r.created_at }}</td>
+        <td>{{ r.cust_name }}</td>
+        <td>{% for d in r.docs_json|fromjson %}<span class="doc-mini">{{ doc_types[d].folder if d in doc_types else d }}</span>{% endfor %}</td>
+        <td class="mono">{{ r.currency }} {{ "%.2f"|format(r.total) }}</td>
+        <td class="mono">{{ r.qty_total }}</td>
+        <td class="acts">
+          <a href="{{ url_for('view_doc', sid=r.id, doctype='commercial') }}" target="_blank">عرض</a>
+          <a href="{{ url_for('duplicate', sid=r.id) }}">تكرار</a>
+          <form method="post" action="{{ url_for('delete', sid=r.id) }}" onsubmit="return confirm('حذف {{ r.ref_no }}؟ (مع نسخة احتياطية)')"><button class="del">حذف</button></form>
+        </td>
+      </tr>
+      {% else %}<tr><td colspan="7" class="empty">لا يوجد سجل بعد.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

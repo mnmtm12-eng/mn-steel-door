@@ -1,0 +1,43 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>{{ doc.label }} — {{ s.ref_no }}</title>
+{% include 'docs/_style.html' %}</head><body>
+{% include 'docs/_header.html' %}
+
+<table class="items">
+  <thead><tr><th class="c" style="width:6%">#</th><th style="width:64%">Description of Goods</th><th class="c" style="width:30%">Quantity</th></tr></thead>
+  <tbody>
+    {% for it in items %}
+    <tr><td class="c num">{{ loop.index }}</td>
+      <td class="it-desc"><b>{{ it.name }}</b> &nbsp; <span>Steel Door · {{ it.width }}×{{ it.height }}×{{ it.beam }} cm</span></td>
+      <td class="c num">{{ it.qty|int }} pcs</td></tr>
+    {% endfor %}
+    <tr style="background:#f5f7fa"><td></td><td style="font-weight:700;color:#1e2b48">TOTAL</td><td class="c num" style="font-weight:700;color:#1e2b48">{{ s.qty_total }} pcs</td></tr>
+  </tbody>
+</table>
+
+<h4 style="font-family:'Oswald';font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#27608b;margin:6px 0 8px">Container / Packing Details</h4>
+<table class="items">
+  <thead><tr><th class="c" style="width:6%">#</th><th>Container No.</th><th>Seal No.</th><th>Content</th><th class="r">Gross Weight (KG)</th></tr></thead>
+  <tbody>
+    {% for c in containers %}
+    <tr><td class="c num">{{ loop.index }}</td>
+      <td class="num">{{ c.no or '—' }}</td><td class="num">{{ c.seal or '—' }}</td>
+      <td>{{ c.content or '—' }}</td><td class="r num">{{ "{:,.0f}".format(c.weight or 0) }}</td></tr>
+    {% else %}
+    <tr><td colspan="5" class="c" style="color:#8b9197">No container data entered.</td></tr>
+    {% endfor %}
+    {% if containers %}<tr style="background:#f5f7fa"><td colspan="4" style="font-weight:700;color:#1e2b48">TOTAL GROSS WEIGHT</td><td class="r num" style="font-weight:700;color:#1e2b48">{{ "{:,.0f}".format(s.gross_weight or 0) }} KG</td></tr>{% endif %}
+  </tbody>
+</table>
+
+<div class="foot">
+  <div class="left"><div class="box"><h4>Marks &amp; Numbers</h4>{{ company.name }} — {{ cust.name }}<br>Origin: {{ origin }} · HS Code: {{ hs }}</div></div>
+  <div class="right"><table class="tot-table">
+    <tr><td class="lab">Total Packages</td><td class="val num">{{ s.qty_total }} doors</td></tr>
+    <tr><td class="lab">Containers</td><td class="val num">{{ s.container_count }}</td></tr>
+    <tr class="tot-grand"><td>GROSS WEIGHT</td><td class="val num">{{ "{:,.0f}".format(s.gross_weight or 0) }} KG</td></tr>
+  </table></div>
+</div>
+
+<div class="auth">THIS PACKING LIST IS AUTHENTIC AND APPROVED BY THE EXPORTER</div>
+<div class="sign"><div><div class="line">Exporter — {{ company.name }}</div></div><div><div class="line">Authorized Signature &amp; Stamp</div></div></div>
+</body></html>

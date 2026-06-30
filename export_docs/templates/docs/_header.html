@@ -1,0 +1,45 @@
+<div class="print-bar">
+  <button onclick="window.print()">🖨️ طباعة</button>
+  <a class="alt" href="/shipment/{{ s.id }}/doc/{{ doctype }}/pdf">⬇️ PDF</a>
+  <a class="alt" href="/">＋ جديدة</a>
+</div>
+<div class="head">
+  <div class="logo-wrap">
+    <div class="logo">MN</div>
+    <div><div class="brand-t">MN STEEL DOOR</div><div class="brand-s">Steel Doors · Export</div></div>
+  </div>
+  <div class="doc-type">
+    <div class="t">{{ doc.label }}</div>
+    <div class="badge">{{ doc.ar }} · Ref {{ s.ref_no }}</div>
+  </div>
+</div>
+<div class="meta">
+  <div><span class="meta-label">Reference</span><br><span class="num">{{ s.ref_no }}</span></div>
+  <div><span class="meta-label">Date</span><br><span class="num">{{ s.created_at }}</span></div>
+  <div><span class="meta-label">HS Code</span><br><span class="num">{{ hs }}</span></div>
+  <div><span class="meta-label">Origin</span><br><span class="num">{{ origin }}</span></div>
+</div>
+<div class="parties">
+  <div class="party">
+    <h3>Exporter</h3>
+    <div class="nm">{{ company.name }}</div>
+    {% if company.address %}<p>{{ company.address }}</p>{% endif %}
+    {% if company.phone %}<p><span class="k">Tel:</span> {{ company.phone }}</p>{% endif %}
+    {% if company.email %}<p><span class="k">Email:</span> {{ company.email }}</p>{% endif %}
+  </div>
+  <div class="party">
+    <h3>Consignee</h3>
+    <div class="nm">{{ cust.name }}</div>
+    {% if cust.contact %}<p>{{ cust.contact }}</p>{% endif %}
+    {% if cust.address %}<p>{{ cust.address }}</p>{% endif %}
+    {% if cust.phone %}<p><span class="k">Tel:</span> {{ cust.phone }}</p>{% endif %}
+    {% if cust.tax_no %}<p><span class="k">Tax No:</span> {{ cust.tax_no }}</p>{% endif %}
+  </div>
+</div>
+<div class="ship">
+  <div><span class="k">Incoterm</span><span class="v">{{ s.incoterm }}</span></div>
+  <div><span class="k">Loading</span><span class="v">{{ s.port_loading or '—' }}</span></div>
+  <div><span class="k">Discharge</span><span class="v">{{ s.port_discharge or '—' }}</span></div>
+  <div><span class="k">ACID No</span><span class="v">{{ s.acid_no or '—' }}</span></div>
+  <div><span class="k">Country</span><span class="v">{{ cust.country or '—' }}</span></div>
+</div>
