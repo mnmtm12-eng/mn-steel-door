@@ -50,7 +50,9 @@ def _hdr(ws, ctx, ncols=5):
     # exporter
     ws[f"A{r}"] = "EXPORTER"; ws[f"A{r}"].font = F_LBL
     ws[f"A{r+1}"] = co["name"]; ws[f"A{r+1}"].font = F_BOLD
-    ex = [x for x in [co["address"], (("Tel: " + co["phone"]) if co["phone"] else ""), (("Email: " + co["email"]) if co["email"] else "")] if x]
+    ex = [x for x in [co["address"], (("Tel: " + co["phone"]) if co["phone"] else ""),
+          (("Email: " + co["email"]) if co["email"] else ""),
+          (("Tax No (VKN): " + co["tax_no"]) if (("tax_no" in co.keys()) and co["tax_no"]) else "")] if x]
     for i, line in enumerate(ex):
         ws[f"A{r+2+i}"] = line; ws[f"A{r+2+i}"].font = F_TXT
     # consignee

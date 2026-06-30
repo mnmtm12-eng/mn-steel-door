@@ -16,7 +16,7 @@
       <label>الشركة المُصدّرة (Exporter)</label>
       <div class="chips" id="companyChips">
         {% for co in companies %}
-        <div class="chip {{ 'sel' if (dup and dup.company_id==co.id) or (not dup and loop.first) }}" data-id="{{ co.id }}" onclick="pickCompany(this)">{{ co.name }}</div>
+        <div class="chip {{ 'sel' if (dup and dup.company_id==co.id) or (not dup and loop.first) }}" data-id="{{ co.id }}" onclick="pickCompany(this)" title="{{ co.name }}">{{ co.short_name or co.name }}</div>
         {% endfor %}
       </div>
     </div>
@@ -25,7 +25,7 @@
         <label>الزبون (Consignee)</label>
         <div style="display:flex;gap:8px">
           <select name="customer_id" id="customer_id" required>
-            {% for c in customers %}<option value="{{ c.id }}" data-country="{{ c.country }}" data-currency="{{ c.currency }}"
+            {% for c in customers %}<option value="{{ c.id }}" data-country="{{ c.country }}" data-currency="{{ c.currency }}" data-acid="{{ c.acid or '' }}"
               {% if dup and dup.customer_id==c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
           </select>
           <button type="button" class="btn ghost sm" onclick="document.getElementById('newCust').classList.toggle('hidden')">+ جديد</button>

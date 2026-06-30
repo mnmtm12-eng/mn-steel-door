@@ -93,6 +93,7 @@
     $("#acidReq").classList.toggle("hidden", !eg);
     $("#acid_no").required = eg;
     const cur = o ? o.dataset.currency : ""; if (cur) $("#currency").value = cur;
+    const acid = o ? o.dataset.acid : ""; if (acid) $("#acid_no").value = acid;   // ACID ثابت لكل مستورد
   }
 
   window.pickCompany = function (el) {

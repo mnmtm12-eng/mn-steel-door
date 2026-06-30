@@ -75,10 +75,10 @@ def init_db():
     db = sqlite3.connect(DB_PATH)
     db.executescript("""
     CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT);
-    CREATE TABLE IF NOT EXISTS companies(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, address TEXT,
-        phone TEXT, email TEXT, bank_name TEXT, branch TEXT, branch_code TEXT, iban TEXT, swift TEXT);
+    CREATE TABLE IF NOT EXISTS companies(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, short_name TEXT DEFAULT '',
+        address TEXT, tax_no TEXT DEFAULT '', phone TEXT, email TEXT, bank_name TEXT, branch TEXT, branch_code TEXT, iban TEXT, swift TEXT);
     CREATE TABLE IF NOT EXISTS customers(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, contact TEXT,
-        address TEXT, phone TEXT, tax_no TEXT, country TEXT, currency TEXT DEFAULT 'USD');
+        address TEXT, phone TEXT, tax_no TEXT, country TEXT, currency TEXT DEFAULT 'USD', acid TEXT DEFAULT '');
     CREATE TABLE IF NOT EXISTS models(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT,
         width TEXT, height TEXT, beam TEXT, default_price REAL DEFAULT 0, last_price REAL DEFAULT 0);
     CREATE TABLE IF NOT EXISTS shipments(id INTEGER PRIMARY KEY AUTOINCREMENT, ref_no TEXT UNIQUE,
@@ -88,6 +88,14 @@ def init_db():
         notes TEXT, items_json TEXT, containers_json TEXT, docs_json TEXT, files_json TEXT);
     """)
     db.commit(); cur = db.cursor()
+    # migrations لقواعد البيانات الموجودة (إضافة أعمدة جديدة)
+    for tbl, col, ddl in [
+        ("companies", "short_name", "ALTER TABLE companies ADD COLUMN short_name TEXT DEFAULT ''"),
+        ("companies", "tax_no", "ALTER TABLE companies ADD COLUMN tax_no TEXT DEFAULT ''"),
+        ("customers", "acid", "ALTER TABLE customers ADD COLUMN acid TEXT DEFAULT ''")]:
+        if col not in [r[1] for r in cur.execute(f"PRAGMA table_info({tbl})").fetchall()]:
+            cur.execute(ddl)
+    db.commit()
     def _s(k, v):
         if not cur.execute("SELECT 1 FROM settings WHERE key=?", (k,)).fetchone():
             cur.execute("INSERT INTO settings(key,value) VALUES(?,?)", (k, json.dumps(v)))
@@ -104,17 +112,60 @@ def init_db():
     if os.path.exists(sp):
         try: seed = json.load(open(sp, encoding="utf-8"))
         except Exception: seed = {}
+    def _ins_company(c):
+        cur.execute("""INSERT INTO companies(name,short_name,address,tax_no,phone,email,bank_name,branch,branch_code,iban,swift)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?)""", (c.get("name",""), c.get("short",""), c.get("address",""),
+            c.get("tax_no",""), c.get("phone",""), c.get("email",""), c.get("bank_name",""), c.get("branch",""),
+            c.get("branch_code",""), c.get("iban",""), c.get("swift","")))
+    def _ins_customer(c):
+        cur.execute("""INSERT INTO customers(name,contact,address,phone,tax_no,country,currency,email,acid)
+            VALUES(?,?,?,?,?,?,?,?,?)""", (c.get("name",""), c.get("contact",""), c.get("address",""),
+            c.get("phone",""), c.get("tax_no",""), c.get("country",""), c.get("currency","USD"),
+            c.get("email",""), c.get("acid","")))
+
     if not cur.execute("SELECT 1 FROM companies").fetchone():
         for c in seed.get("companies", [{"name": "SAIROGULLARI DIS TICARET LTD STI"}]):
-            cur.execute("""INSERT INTO companies(name,address,phone,email,bank_name,branch,branch_code,iban,swift)
-                VALUES(?,?,?,?,?,?,?,?,?)""", (c.get("name",""), c.get("address",""), c.get("phone",""),
-                c.get("email",""), c.get("bank_name",""), c.get("branch",""), c.get("branch_code",""),
-                c.get("iban",""), c.get("swift","")))
+            _ins_company(c)
+    else:
+        # تعبئة بيانات الشركات الكاملة (لقواعد البيانات التي تحتوي أسماء مبدئية فقط)
+        rows = cur.execute("SELECT * FROM companies ORDER BY id").fetchall()
+        cols = [d[0] for d in cur.description]
+        for i, sc in enumerate(seed.get("companies", [])):
+            if i < len(rows):
+                row = dict(zip(cols, rows[i])); cid = row["id"]
+                if not (row.get("short_name") or "").strip():
+                    cur.execute("UPDATE companies SET short_name=? WHERE id=?", (sc.get("short",""), cid))
+                if not (row.get("address") or "").strip():   # شركة مبدئية فارغة → عبّئها بالكامل
+                    cur.execute("""UPDATE companies SET name=?,address=?,tax_no=?,phone=?,email=?,bank_name=?,
+                        branch=?,branch_code=?,iban=?,swift=? WHERE id=?""", (sc.get("name",""), sc.get("address",""),
+                        sc.get("tax_no",""), sc.get("phone",""), sc.get("email",""), sc.get("bank_name",""),
+                        sc.get("branch",""), sc.get("branch_code",""), sc.get("iban",""), sc.get("swift",""), cid))
+            else:
+                _ins_company(sc)
+
     if not cur.execute("SELECT 1 FROM customers").fetchone():
         for c in seed.get("customers", []):
-            cur.execute("""INSERT INTO customers(name,contact,address,phone,tax_no,country,currency)
-                VALUES(?,?,?,?,?,?,?)""", (c.get("name",""), c.get("contact",""), c.get("address",""),
-                c.get("phone",""), c.get("tax_no",""), c.get("country",""), c.get("currency","USD")))
+            _ins_customer(c)
+    else:
+        # إعادة تسمية الزبائن المحدّثين (تفادي التكرار على قواعد البيانات القديمة)
+        rename_map = {"MODERN STYLE FOR IMPORT & EXPORT": "سعد زكي — Modern Style (مصر)",
+                      "ياسر مرسي": "ياسر مرسي — مصر", "إيمان السيد": "إيمان السيد — مصر"}
+        names_now = {r[0] for r in cur.execute("SELECT name FROM customers").fetchall()}
+        for old, new in rename_map.items():
+            if old in names_now and new not in names_now:
+                cur.execute("UPDATE customers SET name=? WHERE name=?", (new, old))
+        # إضافة أي زبون جديد + تعبئة الحقول الفارغة للزبائن الموجودين
+        existing = {r[0]: r[1] for r in cur.execute("SELECT name,id FROM customers").fetchall()}
+        for c in seed.get("customers", []):
+            if c["name"] not in existing:
+                _ins_customer(c)
+            elif c.get("acid") or c.get("address"):
+                cur.execute("""UPDATE customers SET contact=COALESCE(NULLIF(contact,''),?),
+                    address=COALESCE(NULLIF(address,''),?), phone=COALESCE(NULLIF(phone,''),?),
+                    tax_no=COALESCE(NULLIF(tax_no,''),?), acid=COALESCE(NULLIF(acid,''),?) WHERE name=?""",
+                    (c.get("contact",""), c.get("address",""), c.get("phone",""), c.get("tax_no",""),
+                     c.get("acid",""), c["name"]))
+
     if not cur.execute("SELECT 1 FROM models").fetchone():
         for name, w, h, b in MODEL_SEED:
             cur.execute("INSERT INTO models(name,width,height,beam,default_price,last_price) VALUES(?,?,?,?,0,0)", (name, w, h, b))
@@ -192,8 +243,8 @@ def index():
 @login_required
 def add_customer():
     d = request.json; db = get_db()
-    cur = db.execute("INSERT INTO customers(name,contact,address,phone,tax_no,country,currency) VALUES(?,?,?,?,?,?,?)",
-        (d.get("name"), d.get("contact"), d.get("address"), d.get("phone"), d.get("tax_no"), d.get("country"), d.get("currency","USD")))
+    cur = db.execute("INSERT INTO customers(name,contact,address,phone,tax_no,country,currency,acid) VALUES(?,?,?,?,?,?,?,?)",
+        (d.get("name"), d.get("contact"), d.get("address"), d.get("phone"), d.get("tax_no"), d.get("country"), d.get("currency","USD"), d.get("acid","")))
     db.commit()
     return jsonify({"id": cur.lastrowid})
 
