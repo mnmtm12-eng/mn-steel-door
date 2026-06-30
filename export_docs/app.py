@@ -265,6 +265,7 @@ def _render_doc(sid, doctype):
 
 def _render_and_save(sid, docs, cust):
     from weasyprint import HTML
+    import xlsx_docs
     ctx = _ctx(sid); s = ctx["s"]
     ym = (s["created_at"] or "")[:7] or datetime.date.today().strftime("%Y-%m")
     saved = []
@@ -272,11 +273,20 @@ def _render_and_save(sid, docs, cust):
         if dt not in DOC_TYPES: continue
         folder = os.path.join(OUTPUT_BASE, safe(cust["name"]), ym, DOC_TYPES[dt]["folder"])
         os.makedirs(folder, exist_ok=True)
-        fname = f"{s['created_at']}_{DOC_TYPES[dt]['folder']}_{safe(cust['name'])}_{s['ref_no']}.pdf"
-        path = os.path.join(folder, fname)
-        HTML(string=_render_doc(sid, dt), base_url=request.url_root).write_pdf(path)
-        saved.append({"type": dt, "label": DOC_TYPES[dt]["label"], "path": path,
-                      "rel": path.replace(os.path.expanduser("~"), "~")})
+        stem = f"{s['created_at']}_{DOC_TYPES[dt]['folder']}_{safe(cust['name'])}_{s['ref_no']}"
+        # Excel (الصيغة الأساسية المطلوبة)
+        xlsx_path = os.path.join(folder, stem + ".xlsx")
+        dctx = dict(ctx); dctx["doc"] = DOC_TYPES[dt]
+        xlsx_docs.build(dt, dctx).save(xlsx_path)
+        # PDF (نسخة إضافية للطباعة/التوقيع)
+        pdf_path = os.path.join(folder, stem + ".pdf")
+        try:
+            HTML(string=_render_doc(sid, dt), base_url=request.url_root).write_pdf(pdf_path)
+        except Exception:
+            pdf_path = None
+        saved.append({"type": dt, "label": DOC_TYPES[dt]["label"],
+                      "xlsx_rel": xlsx_path.replace(os.path.expanduser("~"), "~"),
+                      "pdf_rel": pdf_path.replace(os.path.expanduser("~"), "~") if pdf_path else None})
     return saved
 
 @app.route("/result/<int:sid>")
@@ -307,6 +317,19 @@ def doc_pdf(sid, doctype):
     s = get_db().execute("SELECT ref_no FROM shipments WHERE id=?", (sid,)).fetchone()
     return Response(pdf, mimetype="application/pdf",
                    headers={"Content-Disposition": f"inline; filename={s['ref_no']}_{doctype}.pdf"})
+
+@app.route("/shipment/<int:sid>/doc/<doctype>/xlsx")
+@login_required
+def doc_xlsx(sid, doctype):
+    import xlsx_docs
+    if doctype not in DOC_TYPES: abort(404)
+    ctx = _ctx(sid)
+    if not ctx: abort(404)
+    ctx["doc"] = DOC_TYPES[doctype]
+    data = xlsx_docs.to_bytes(xlsx_docs.build(doctype, ctx))
+    s = get_db().execute("SELECT ref_no FROM shipments WHERE id=?", (sid,)).fetchone()
+    return Response(data, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                   headers={"Content-Disposition": f"attachment; filename={s['ref_no']}_{doctype}.xlsx"})
 
 # ---------------------------------------------------------------- history / settings
 @app.route("/history")

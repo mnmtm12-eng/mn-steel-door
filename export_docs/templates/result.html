@@ -14,10 +14,11 @@
     <div class="file-list">
       {% for f in files %}
       <div class="file-item">
-        <div class="fi-l"><b>{{ f.label }}</b><span>{{ f.rel }}</span></div>
+        <div class="fi-l"><b>{{ f.label }}</b><span>{{ f.xlsx_rel }}</span></div>
         <div class="fi-r">
-          <a class="btn ghost sm" href="{{ url_for('view_doc', sid=s.id, doctype=f.type) }}" target="_blank">عرض/طباعة</a>
-          <a class="btn sm" href="{{ url_for('doc_pdf', sid=s.id, doctype=f.type) }}" target="_blank">PDF</a>
+          <a class="btn sm" href="{{ url_for('doc_xlsx', sid=s.id, doctype=f.type) }}">⬇️ Excel</a>
+          <a class="btn ghost sm" href="{{ url_for('doc_pdf', sid=s.id, doctype=f.type) }}" target="_blank">PDF</a>
+          <a class="btn ghost sm" href="{{ url_for('view_doc', sid=s.id, doctype=f.type) }}" target="_blank">عرض</a>
         </div>
       </div>
       {% else %}
