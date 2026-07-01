@@ -225,6 +225,13 @@ def fx_rate(to):
 
 def safe(s): return re.sub(r"[^\w؀-ۿ .&-]", "_", s or "").strip()[:60] or "x"
 
+def initials(co):
+    src = (co["short_name"] or co["name"] or "").strip()
+    words = [w for w in re.split(r"\s+", src) if w]
+    if not words: return "—"
+    if len(words) == 1: return words[0][:2].upper()
+    return (words[0][0] + words[1][0]).upper()
+
 # ---------------------------------------------------------------- screens
 @app.route("/")
 @login_required
@@ -302,11 +309,11 @@ def _ctx(sid):
     db = get_db()
     s = db.execute("SELECT * FROM shipments WHERE id=?", (sid,)).fetchone()
     if not s: return None
-    return dict(s=s,
-        company=db.execute("SELECT * FROM companies WHERE id=?", (s["company_id"],)).fetchone(),
+    company = db.execute("SELECT * FROM companies WHERE id=?", (s["company_id"],)).fetchone()
+    return dict(s=s, company=company,
         cust=db.execute("SELECT * FROM customers WHERE id=?", (s["customer_id"],)).fetchone(),
         items=json.loads(s["items_json"]), containers=json.loads(s["containers_json"]),
-        hs=HS_CODE, origin=ORIGIN, doc_types=DOC_TYPES)
+        hs=HS_CODE, origin=ORIGIN, doc_types=DOC_TYPES, initials=initials(company))
 
 def _render_doc(sid, doctype):
     ctx = _ctx(sid)
