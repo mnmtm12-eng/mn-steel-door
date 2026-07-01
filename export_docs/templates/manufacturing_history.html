@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}سجل بروفورمات التصنيع{% endblock %}
+{% block body %}
+<div class="page">
+  <h2 class="page-title">سجل بروفورمات التصنيع</h2>
+  <form class="search" method="get">
+    <input name="q" value="{{ q }}" placeholder="بحث بالمرجع أو الزبون أو التاريخ...">
+    <button class="btn sm">بحث</button>
+    {% if q %}<a class="btn ghost sm" href="{{ url_for('manu_history') }}">إلغاء</a>{% endif %}
+  </form>
+  <table class="tbl">
+    <thead><tr><th>المرجع</th><th>التاريخ</th><th>الزبون</th><th>الأبواب</th><th>الإجمالي</th><th>إجراءات</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td class="mono">{{ r.ref_no }}</td>
+        <td class="mono">{{ r.created_at }}</td>
+        <td>{{ r.cust_name }}</td>
+        <td class="mono">{{ r.qty_total }}</td>
+        <td class="mono">{{ r.currency }} {{ "%.2f"|format(r.total) }}</td>
+        <td class="acts">
+          <a href="{{ url_for('manu_xlsx_download', oid=r.id) }}">Excel</a>
+          <a href="{{ url_for('manu_duplicate', oid=r.id) }}">تكرار</a>
+          <form method="post" action="{{ url_for('manu_delete', oid=r.id) }}" onsubmit="return confirm('حذف {{ r.ref_no }}؟ (مع نسخة احتياطية)')"><button class="del">حذف</button></form>
+        </td>
+      </tr>
+      {% else %}<tr><td colspan="6" class="empty">لا يوجد سجل بعد.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

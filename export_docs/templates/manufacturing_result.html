@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}تم التوليد — {{ o.ref_no }}{% endblock %}
+{% block body %}
+<div class="page" style="max-width:820px">
+  <div class="card">
+    <div class="result-hero">
+      <div class="ico">✓</div>
+      <h2>تم توليد بروفورما التصنيع بنجاح</h2>
+      <p>المرجع <b class="num">{{ o.ref_no }}</b> · {{ o.created_at }} · {{ o.qty_total }} باب · {{ o.currency }} {{ "%.2f"|format(o.total) }}</p>
+    </div>
+
+    {% if o.file_rel %}
+    <div class="pathbox" style="margin-bottom:18px">{{ o.file_rel }}</div>
+    <div class="file-list">
+      <div class="file-item">
+        <div class="fi-l"><b>Manufacturing Proforma</b><span>{{ o.file_rel }}</span></div>
+        <div class="fi-r"><a class="btn sm" href="{{ url_for('manu_xlsx_download', oid=o.id) }}">⬇️ Excel</a></div>
+      </div>
+    </div>
+    {% else %}
+    <div class="empty">لم يُولّد ملف Excel — تأكد من تثبيت openpyxl.</div>
+    {% endif %}
+
+    <div style="display:flex;gap:10px;margin-top:24px;justify-content:center">
+      <a class="btn navy" href="{{ url_for('manufacturing_new') }}">＋ بروفورما جديدة</a>
+      <a class="btn ghost" href="{{ url_for('manu_history') }}">سجل بروفورمات التصنيع</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

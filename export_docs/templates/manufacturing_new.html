@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}بروفورما تصنيع جديدة{% endblock %}
+{% block body %}
+<div class="page">
+  <h2 class="page-title">بروفورما تصنيع {% if dup %}<span class="tag">مكرّرة من {{ dup.ref_no }}</span>{% endif %}</h2>
+
+  <form id="manuForm" method="post" action="{{ url_for('manu_generate') }}">
+  <input type="hidden" name="items_json" id="items_json">
+  <input type="hidden" name="company_id" id="company_id" value="{{ (dup.company_id if dup else companies[0].id) }}">
+
+  <section class="card">
+    <div class="card-h"><span class="t"><span class="num-badge">1</span> بيانات الطلب</span></div>
+    <div class="field span-all" style="margin-bottom:16px">
+      <label>الشركة المُصنّعة/المصدّرة</label>
+      <div class="chips" id="companyChips">
+        {% for co in companies %}
+        <div class="chip {{ 'sel' if (dup and dup.company_id==co.id) or (not dup and loop.first) }}" data-id="{{ co.id }}" onclick="pickCompany(this)" title="{{ co.name }}">{{ co.short_name or co.name }}</div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="grid3">
+      <div class="field">
+        <label>الزبون</label>
+        <div style="display:flex;gap:8px">
+          <select name="customer_id" id="customer_id" required>
+            {% for c in customers %}<option value="{{ c.id }}" {% if dup and dup.customer_id==c.id %}selected{% endif %}>{{ c.name }}</option>{% endfor %}
+          </select>
+          <button type="button" class="btn ghost sm" onclick="document.getElementById('newCust').classList.toggle('hidden')">+ جديد</button>
+        </div>
+      </div>
+      <div class="field"><label>تاريخ البروفورما</label><input type="date" name="date" value="{{ dup.created_at if dup else '' }}"></div>
+      <div class="field"><label>العملة</label><select name="currency" id="currency">{% for cu in currencies %}<option {% if cu=='USD' %}selected{% endif %}>{{ cu }}</option>{% endfor %}</select></div>
+      <div class="field"><label>Delivery</label><input name="delivery" value="{{ dup.delivery if dup else 'EXW' }}" placeholder="مثال: EXW / FOB"></div>
+      <div class="field span-2"><label>Payment Term</label><input name="payment_term" value="{{ dup.payment_term if dup else default_payment }}" placeholder="مثال: %30 DEPOSIT \ %70 CAD"></div>
+    </div>
+    <div id="newCust" class="subcard hidden">
+      <div class="grid3">
+        <input id="nc_name" placeholder="اسم الزبون *"><input id="nc_contact" placeholder="الشخص المسؤول">
+        <input id="nc_phone" placeholder="الهاتف"><input id="nc_country" placeholder="الدولة">
+        <input id="nc_tax" placeholder="الرقم الضريبي"><select id="nc_currency">{% for cu in currencies %}<option>{{ cu }}</option>{% endfor %}</select>
+        <input id="nc_address" placeholder="العنوان" class="span-all">
+      </div>
+      <button type="button" class="btn sm" style="margin-top:12px" onclick="saveCustomer()">حفظ الزبون</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="t"><span class="num-badge">2</span> استيراد طلب الزبون</span></div>
+    <div class="import-tabs">
+      <button type="button" class="itab on" data-tab="excel" onclick="switchTab('excel')">📄 رفع ملف Excel</button>
+      <button type="button" class="itab" data-tab="paste" onclick="switchTab('paste')">📋 لصق نص (من سكرين شوت)</button>
+      <button type="button" class="itab" data-tab="image" onclick="switchTab('image')">🖼️ رفع صورة (OCR)</button>
+    </div>
+
+    <div class="itab-panel" id="panel-excel">
+      <p class="hint">ارفع ملف Excel لطلب الزبون (بروفورما تصنيع، فاتورة، أو أي جدول موديلات/كميات) — سيُقرأ ويُعبَّأ الجدول تلقائياً للمراجعة.</p>
+      <input type="file" id="excelFile" accept=".xlsx,.xls">
+      <button type="button" class="btn sm" onclick="uploadExcel()">تحليل الملف</button>
+      <span id="excelStatus" class="import-status"></span>
+    </div>
+
+    <div class="itab-panel hidden" id="panel-paste">
+      <p class="hint">انسخ نص طلب الزبون (من واتساب أو السكرين شوت) والصقه هنا — مثال: <code>Code 106 يمين 20 شمال 15 سعر 120</code> — كل سطر بند مستقل.</p>
+      <textarea id="pasteText" rows="6" placeholder="الصق النص هنا..."></textarea>
+      <button type="button" class="btn sm" onclick="parsePaste()">تحليل النص</button>
+      <span id="pasteStatus" class="import-status"></span>
+    </div>
+
+    <div class="itab-panel hidden" id="panel-image">
+      <p class="hint">ارفع صورة (سكرين شوت طلب الزبون) — سيحاول النظام قراءة النص تلقائياً (OCR). إذا لم يكن OCR مثبّتاً، استخدم تبويب "لصق نص" بدلاً منه (أدق دائماً).</p>
+      <input type="file" id="imgFile" accept="image/*">
+      <button type="button" class="btn sm" onclick="uploadImage()">استخراج وتحليل الصورة</button>
+      <span id="imgStatus" class="import-status"></span>
+      <textarea id="ocrText" rows="4" class="hidden" placeholder="النص المستخرج (يمكن تعديله ثم إعادة التحليل)"></textarea>
+      <button type="button" class="btn ghost sm hidden" id="reparseBtn" onclick="reparseOcr()">إعادة تحليل النص المعدَّل</button>
+    </div>
+
+    <div class="notice" id="importNote" style="margin-top:14px">⚠️ الاستخراج مبدئي دائماً — راجع وعدّل الجدول أدناه (الموديل، Sağ/Sol، السعر) قبل التوليد للتأكد من الدقة.</div>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><span class="t"><span class="num-badge">3</span> جدول البنود (راجع وعدّل)</span>
+      <button type="button" class="btn sm" onclick="addRow()">+ إضافة صف يدوياً</button></div>
+    <div class="table-scroll">
+    <table class="tbl tbl-manu" id="itemsTbl">
+      <thead><tr>
+        <th>#</th><th>الموديل/الكود</th><th>Wood</th><th>Metal Color</th><th>Handle</th><th>Accessory</th>
+        <th>Sağ</th><th>Sol</th><th>الإجمالي</th><th>سعر الوحدة</th><th>المجموع</th><th></th>
+      </tr></thead>
+      <tbody id="itemsBody"></tbody>
+    </table>
+    </div>
+  </section>
+
+  <div class="sumbar">
+    <div class="it"><span class="k">عدد الأبواب</span><span class="v num" id="bQty">0</span></div>
+    <div class="it"><span class="k">الإجمالي</span><span class="v num gold" id="bTotal">$0.00</span></div>
+    <button type="submit" class="btn navy big" style="max-width:280px">⟶ توليد البروفورما</button>
+  </div>
+  </form>
+</div>
+
+<script id="manu-dup-data" type="application/json">{{ (dup_items_json if dup else 'null')|safe }}</script>
+<script src="{{ url_for('static', filename='js/manufacturing.js') }}"></script>
+{% endblock %}

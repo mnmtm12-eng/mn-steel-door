@@ -86,12 +86,16 @@ def init_db():
         port_discharge TEXT, acid_no TEXT, payment_terms TEXT, currency TEXT, fx_rate REAL,
         subtotal REAL, total REAL, qty_total INTEGER, gross_weight REAL, container_count INTEGER,
         notes TEXT, items_json TEXT, containers_json TEXT, docs_json TEXT, files_json TEXT);
+    CREATE TABLE IF NOT EXISTS manu_orders(id INTEGER PRIMARY KEY AUTOINCREMENT, ref_no TEXT UNIQUE,
+        created_at TEXT, company_id INTEGER, customer_id INTEGER, delivery TEXT, payment_term TEXT,
+        currency TEXT DEFAULT 'USD', total REAL, qty_total INTEGER, notes TEXT, items_json TEXT, file_rel TEXT);
     """)
     db.commit(); cur = db.cursor()
     # migrations لقواعد البيانات الموجودة (إضافة أعمدة جديدة)
     for tbl, col, ddl in [
         ("companies", "short_name", "ALTER TABLE companies ADD COLUMN short_name TEXT DEFAULT ''"),
         ("companies", "tax_no", "ALTER TABLE companies ADD COLUMN tax_no TEXT DEFAULT ''"),
+        ("companies", "account_no", "ALTER TABLE companies ADD COLUMN account_no TEXT DEFAULT ''"),
         ("customers", "acid", "ALTER TABLE customers ADD COLUMN acid TEXT DEFAULT ''")]:
         if col not in [r[1] for r in cur.execute(f"PRAGMA table_info({tbl})").fetchall()]:
             cur.execute(ddl)
@@ -113,10 +117,10 @@ def init_db():
         try: seed = json.load(open(sp, encoding="utf-8"))
         except Exception: seed = {}
     def _ins_company(c):
-        cur.execute("""INSERT INTO companies(name,short_name,address,tax_no,phone,email,bank_name,branch,branch_code,iban,swift)
-            VALUES(?,?,?,?,?,?,?,?,?,?,?)""", (c.get("name",""), c.get("short",""), c.get("address",""),
+        cur.execute("""INSERT INTO companies(name,short_name,address,tax_no,phone,email,bank_name,branch,branch_code,iban,swift,account_no)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""", (c.get("name",""), c.get("short",""), c.get("address",""),
             c.get("tax_no",""), c.get("phone",""), c.get("email",""), c.get("bank_name",""), c.get("branch",""),
-            c.get("branch_code",""), c.get("iban",""), c.get("swift","")))
+            c.get("branch_code",""), c.get("iban",""), c.get("swift",""), c.get("account_no","")))
     def _ins_customer(c):
         cur.execute("""INSERT INTO customers(name,contact,address,phone,tax_no,country,currency,email,acid)
             VALUES(?,?,?,?,?,?,?,?,?)""", (c.get("name",""), c.get("contact",""), c.get("address",""),
@@ -137,11 +141,16 @@ def init_db():
                     cur.execute("UPDATE companies SET short_name=? WHERE id=?", (sc.get("short",""), cid))
                 if not (row.get("address") or "").strip():   # شركة مبدئية فارغة → عبّئها بالكامل
                     cur.execute("""UPDATE companies SET name=?,address=?,tax_no=?,phone=?,email=?,bank_name=?,
-                        branch=?,branch_code=?,iban=?,swift=? WHERE id=?""", (sc.get("name",""), sc.get("address",""),
+                        branch=?,branch_code=?,iban=?,swift=?,account_no=? WHERE id=?""", (sc.get("name",""), sc.get("address",""),
                         sc.get("tax_no",""), sc.get("phone",""), sc.get("email",""), sc.get("bank_name",""),
-                        sc.get("branch",""), sc.get("branch_code",""), sc.get("iban",""), sc.get("swift",""), cid))
+                        sc.get("branch",""), sc.get("branch_code",""), sc.get("iban",""), sc.get("swift",""),
+                        sc.get("account_no",""), cid))
             else:
                 _ins_company(sc)
+
+    # تعبئة رقم الحساب (account_no) لشركة NEWA من بيانات الفاتورة الفعلية (حقل جديد لم يكن موجوداً سابقاً)
+    cur.execute("UPDATE companies SET account_no=? WHERE short_name='NEWA GROUP' AND (account_no IS NULL OR account_no='')",
+                ("00158048017458915",))
 
     if not cur.execute("SELECT 1 FROM customers").fetchone():
         for c in seed.get("customers", []):
@@ -445,9 +454,9 @@ def settings_page():
         sec = request.form.get("section")
         if sec == "company":
             db.execute("""UPDATE companies SET name=?,address=?,phone=?,email=?,bank_name=?,branch=?,
-                branch_code=?,iban=?,swift=? WHERE id=?""", (request.form["name"], request.form["address"],
+                branch_code=?,account_no=?,iban=?,swift=? WHERE id=?""", (request.form["name"], request.form["address"],
                 request.form["phone"], request.form["email"], request.form["bank_name"], request.form["branch"],
-                request.form["branch_code"], request.form["iban"], request.form["swift"], int(request.form["id"])))
+                request.form["branch_code"], request.form.get("account_no",""), request.form["iban"], request.form["swift"], int(request.form["id"])))
             db.commit(); flash("تم حفظ الشركة")
         elif sec == "models":
             for m in db.execute("SELECT id FROM models").fetchall():
@@ -461,6 +470,167 @@ def settings_page():
         companies=db.execute("SELECT * FROM companies ORDER BY id").fetchall(),
         models=db.execute("SELECT * FROM models ORDER BY id").fetchall(),
         default_payment=setting("default_payment", ""))
+
+# ================================================================== #
+#  بروفورمات التصنيع (Manufacturing Proformas) — لوحة تحكم ثانية      #
+# ================================================================== #
+UPLOAD_DIR = os.path.join(APP_DIR, "tmp_uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+MANU_FOLDER = "Manufacturing_Proforma"
+
+def _manu_next_ref():
+    seq = int(setting("manu_ref_seq", 0)) + 1
+    set_setting("manu_ref_seq", seq)
+    return f"MFP{datetime.date.today().year}-{seq:04d}"
+
+@app.route("/manufacturing")
+@login_required
+def manufacturing_new():
+    db = get_db()
+    return render_template("manufacturing_new.html",
+        customers=db.execute("SELECT * FROM customers ORDER BY id").fetchall(),
+        companies=db.execute("SELECT * FROM companies ORDER BY id").fetchall(),
+        models_json=json.dumps([dict(m) for m in db.execute("SELECT * FROM models ORDER BY id").fetchall()], ensure_ascii=False),
+        currencies=CURRENCIES, default_payment=setting("default_payment", ""))
+
+@app.route("/manufacturing/parse/excel", methods=["POST"])
+@login_required
+def manu_parse_excel_route():
+    import manu_parse
+    f = request.files.get("file")
+    if not f or not f.filename:
+        return jsonify({"items": [], "error": "لم يُرفع أي ملف"})
+    path = os.path.join(UPLOAD_DIR, f"up_{secrets.token_hex(6)}.xlsx")
+    f.save(path)
+    try:
+        items, err = manu_parse.parse_excel(path)
+    except Exception as e:
+        items, err = [], f"تعذّرت قراءة الملف: {e}"
+    finally:
+        try: os.remove(path)
+        except Exception: pass
+    return jsonify({"items": items, "error": err})
+
+@app.route("/manufacturing/parse/text", methods=["POST"])
+@login_required
+def manu_parse_text_route():
+    import manu_parse
+    text = (request.json or {}).get("text", "")
+    items, err = manu_parse.parse_text(text)
+    return jsonify({"items": items, "error": err})
+
+@app.route("/manufacturing/parse/image", methods=["POST"])
+@login_required
+def manu_parse_image_route():
+    import manu_parse, manu_ocr
+    f = request.files.get("file")
+    if not f or not f.filename:
+        return jsonify({"items": [], "text": "", "error": "لم تُرفع أي صورة"})
+    ext = os.path.splitext(f.filename)[1] or ".png"
+    path = os.path.join(UPLOAD_DIR, f"up_{secrets.token_hex(6)}{ext}")
+    f.save(path)
+    try:
+        text, err = manu_ocr.ocr_image(path)
+    finally:
+        try: os.remove(path)
+        except Exception: pass
+    if err and not text:
+        return jsonify({"items": [], "text": "", "error": err})
+    items, perr = manu_parse.parse_text(text)
+    return jsonify({"items": items, "text": text, "error": perr})
+
+@app.route("/manufacturing/generate", methods=["POST"])
+@login_required
+def manu_generate():
+    db = get_db(); f = request.form
+    items = [it for it in json.loads(f.get("items_json", "[]")) if (float(it.get("qty") or 0) > 0)]
+    if not items:
+        flash("أضف باباً واحداً على الأقل"); return redirect(url_for("manufacturing_new"))
+    total = sum(float(it.get("qty") or 0) * float(it.get("unit_price") or 0) for it in items)
+    qty_total = sum(float(it.get("qty") or 0) for it in items)
+    ref = _manu_next_ref()
+    cur = db.execute("""INSERT INTO manu_orders(ref_no,created_at,company_id,customer_id,delivery,payment_term,
+        currency,total,qty_total,notes,items_json,file_rel) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""", (
+        ref, f.get("date") or datetime.date.today().isoformat(), int(f["company_id"]), int(f["customer_id"]),
+        f.get("delivery", ""), f.get("payment_term", ""), f.get("currency", "USD"), total, int(qty_total),
+        f.get("notes", ""), json.dumps(items, ensure_ascii=False), None))
+    db.commit(); oid = cur.lastrowid
+    try:
+        rel = _manu_save_xlsx(oid)
+        db.execute("UPDATE manu_orders SET file_rel=? WHERE id=?", (rel, oid)); db.commit()
+    except Exception as e:
+        flash(f"⚠️ تعذّر توليد Excel: {e}")
+    return redirect(url_for("manu_result", oid=oid))
+
+def _manu_ctx(oid):
+    db = get_db()
+    o = db.execute("SELECT * FROM manu_orders WHERE id=?", (oid,)).fetchone()
+    if not o: return None
+    company = db.execute("SELECT * FROM companies WHERE id=?", (o["company_id"],)).fetchone()
+    cust = db.execute("SELECT * FROM customers WHERE id=?", (o["customer_id"],)).fetchone()
+    return o, company, cust, json.loads(o["items_json"])
+
+def _manu_save_xlsx(oid):
+    import manu_xlsx
+    o, company, cust, items = _manu_ctx(oid)
+    folder = os.path.join(OUTPUT_BASE, safe(cust["name"]), (o["created_at"] or "")[:7], MANU_FOLDER)
+    os.makedirs(folder, exist_ok=True)
+    fname = f"{o['created_at']}_{MANU_FOLDER}_{safe(cust['name'])}_{o['ref_no']}.xlsx"
+    path = os.path.join(folder, fname)
+    manu_xlsx.build(o, company, cust, items).save(path)
+    return path.replace(os.path.expanduser("~"), "~")
+
+@app.route("/manufacturing/result/<int:oid>")
+@login_required
+def manu_result(oid):
+    ctx = _manu_ctx(oid)
+    if not ctx: abort(404)
+    o = ctx[0]
+    return render_template("manufacturing_result.html", o=o, out_base="~/Desktop/TLT_DOOR_ORGANIZED")
+
+@app.route("/manufacturing/<int:oid>/xlsx")
+@login_required
+def manu_xlsx_download(oid):
+    import manu_xlsx
+    ctx = _manu_ctx(oid)
+    if not ctx: abort(404)
+    o, company, cust, items = ctx
+    data = manu_xlsx.to_bytes(manu_xlsx.build(o, company, cust, items))
+    return Response(data, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                   headers={"Content-Disposition": f"attachment; filename={o['ref_no']}_manufacturing.xlsx"})
+
+@app.route("/manufacturing/history")
+@login_required
+def manu_history():
+    q = request.args.get("q", "").strip(); db = get_db()
+    sql = "SELECT m.*, c.name cust_name FROM manu_orders m JOIN customers c ON c.id=m.customer_id"
+    p = []
+    if q:
+        sql += " WHERE m.ref_no LIKE ? OR c.name LIKE ? OR m.created_at LIKE ?"; p = [f"%{q}%"] * 3
+    sql += " ORDER BY m.id DESC"
+    return render_template("manufacturing_history.html", rows=db.execute(sql, p).fetchall(), q=q)
+
+@app.route("/manufacturing/<int:oid>/duplicate")
+@login_required
+def manu_duplicate(oid):
+    db = get_db()
+    ctx = _manu_ctx(oid)
+    if not ctx: abort(404)
+    o = ctx[0]
+    return render_template("manufacturing_new.html",
+        customers=db.execute("SELECT * FROM customers ORDER BY id").fetchall(),
+        companies=db.execute("SELECT * FROM companies ORDER BY id").fetchall(),
+        models_json=json.dumps([dict(m) for m in db.execute("SELECT * FROM models ORDER BY id").fetchall()], ensure_ascii=False),
+        currencies=CURRENCIES, default_payment=o["payment_term"],
+        dup=o, dup_items_json=o["items_json"])
+
+@app.route("/manufacturing/<int:oid>/delete", methods=["POST"])
+@login_required
+def manu_delete(oid):
+    shutil.copy2(DB_PATH, os.path.join(BACKUP_DIR, f"akva_{datetime.datetime.now():%Y%m%d_%H%M%S}.db"))
+    get_db().execute("DELETE FROM manu_orders WHERE id=?", (oid,)); get_db().commit()
+    flash("تم حذف البروفورما (مع نسخة احتياطية)"); return redirect(url_for("manu_history"))
+
 
 if __name__ == "__main__":
     import sys
