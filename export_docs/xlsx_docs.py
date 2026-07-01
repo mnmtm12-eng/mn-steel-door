@@ -92,25 +92,31 @@ def build(doctype, ctx):
     ws.sheet_view.showGridLines = False
 
     if doctype in ("commercial", "proforma"):
-        _widths(ws, [6, 40, 10, 18, 18]); r = _hdr(ws, ctx, 5)
-        r = _table_header(ws, r, ["#", "Description", "Qty", f"Unit Price ({cur})", f"Amount ({cur})"])
+        _widths(ws, [5, 24, 10, 10, 10, 12, 9, 13, 14]); r = _hdr(ws, ctx, 9)
+        r = _table_header(ws, r, ["#", "Model / Code", "Width (cm)", "Height (cm)", "Frame (cm)",
+                                  "Opening", "Qty (pcs)", f"Unit Price ({cur})", f"Total ({cur})"])
         for i, it in enumerate(items):
             lt = it.get("line_total", it["qty"] * it["unit_price"])
-            vals = [i + 1, f"{it['name']}  ({it['width']}×{it['height']}×{it['beam']} cm)", int(it["qty"]), _f(it["unit_price"]), _f(lt)]
+            vals = [i + 1, it["name"], it.get("width", ""), it.get("height", ""), it.get("beam", ""),
+                    it.get("opening", ""), int(it["qty"]), _f(it["unit_price"]), _f(lt)]
             for j, v in enumerate(vals):
                 c = ws.cell(row=r, column=j + 1, value=v); c.border = BORDER
                 c.alignment = LFT if j == 1 else CTR; c.font = F_TXT
                 if i % 2: c.fill = FILL_ROW
             r += 1
-        # total
-        ws.cell(row=r, column=4, value="TOTAL").font = F_BOLD
-        gc = ws.cell(row=r, column=5, value=f"{cur} {_f(s['total'])}"); gc.font = F_GRAND; gc.fill = FILL_NAVY; gc.alignment = CTR
+        # totals row
+        ws.cell(row=r, column=6, value="TOTAL").font = F_BOLD
+        tq = ws.cell(row=r, column=7, value=s["qty_total"]); tq.font = F_BOLD; tq.alignment = CTR
+        gc = ws.cell(row=r, column=9, value=f"{cur} {_f(s['total'])}"); gc.font = F_GRAND; gc.fill = FILL_NAVY; gc.alignment = CTR
         r += 2
         if s["payment_terms"]:
             ws.cell(row=r, column=1, value="Payment Terms:").font = F_LBL
             ws.cell(row=r, column=2, value=s["payment_terms"]).font = F_TXT; r += 1
-        if co["iban"]:
-            for k, v in [("Beneficiary", co["name"]), ("Bank", co["bank_name"]), ("Branch", f"{co['branch']} ({co['branch_code']})"), ("IBAN", co["iban"]), ("SWIFT", co["swift"])]:
+        if co["bank_name"] or co["iban"] or co["swift"]:
+            ws.cell(row=r, column=1, value="BENEFICIARY BANK").font = F_LBL; r += 1
+            branch = co["branch"] + (f" (Code {co['branch_code']})" if co["branch_code"] else "")
+            for k, v in [("Beneficiary", co["name"]), ("Bank", co["bank_name"]), ("Branch", branch), ("IBAN", co["iban"]), ("SWIFT", co["swift"])]:
+                if not v: continue
                 ws.cell(row=r, column=1, value=k).font = F_K; ws.cell(row=r, column=2, value=v).font = F_TXT; r += 1
         r += 1
         ws.cell(row=r, column=1, value="THIS INVOICE IS AUTHENTIC AND APPROVED BY THE EXPORTER").font = F_LBL

@@ -289,13 +289,13 @@ def generate():
         json.dumps(containers, ensure_ascii=False), json.dumps(docs), "[]"))
     db.commit(); sid = cur.lastrowid
 
-    files = []
-    try:
-        files = _render_and_save(sid, docs, cust)
-        db.execute("UPDATE shipments SET files_json=? WHERE id=?", (json.dumps(files, ensure_ascii=False), sid))
-        db.commit()
-    except Exception as e:
-        flash(f"تم الحفظ لكن تعذّر توليد بعض الـPDF: {e}")
+    files, errors = _render_and_save(sid, docs, cust)
+    db.execute("UPDATE shipments SET files_json=? WHERE id=?", (json.dumps(files, ensure_ascii=False), sid))
+    db.commit()
+    for e in errors[:3]:
+        flash("⚠️ " + e)
+    if not any(f.get("xlsx_rel") or f.get("pdf_rel") for f in files):
+        flash("لم تُولّد ملفات. شغّل داخل مجلد export_docs:  pip install -r requirements.txt")
     return redirect(url_for("result", sid=sid))
 
 def _ctx(sid):
@@ -315,30 +315,42 @@ def _render_doc(sid, doctype):
     return render_template(f"docs/{doctype}.html", **ctx)
 
 def _render_and_save(sid, docs, cust):
-    from weasyprint import HTML
-    import xlsx_docs
     ctx = _ctx(sid); s = ctx["s"]
     ym = (s["created_at"] or "")[:7] or datetime.date.today().strftime("%Y-%m")
-    saved = []
+    saved, errors = [], []
+    try:
+        import xlsx_docs
+        have_xlsx = True
+    except Exception as e:
+        have_xlsx = False; errors.append(f"Excel غير متاح: {e} — ثبّت openpyxl")
+    try:
+        from weasyprint import HTML
+        have_pdf = True
+    except Exception as e:
+        have_pdf = False; errors.append(f"PDF غير متاح: {e}")
     for dt in docs:
         if dt not in DOC_TYPES: continue
         folder = os.path.join(OUTPUT_BASE, safe(cust["name"]), ym, DOC_TYPES[dt]["folder"])
         os.makedirs(folder, exist_ok=True)
         stem = f"{s['created_at']}_{DOC_TYPES[dt]['folder']}_{safe(cust['name'])}_{s['ref_no']}"
-        # Excel (الصيغة الأساسية المطلوبة)
-        xlsx_path = os.path.join(folder, stem + ".xlsx")
-        dctx = dict(ctx); dctx["doc"] = DOC_TYPES[dt]
-        xlsx_docs.build(dt, dctx).save(xlsx_path)
-        # PDF (نسخة إضافية للطباعة/التوقيع)
-        pdf_path = os.path.join(folder, stem + ".pdf")
-        try:
-            HTML(string=_render_doc(sid, dt), base_url=request.url_root).write_pdf(pdf_path)
-        except Exception:
-            pdf_path = None
-        saved.append({"type": dt, "label": DOC_TYPES[dt]["label"],
-                      "xlsx_rel": xlsx_path.replace(os.path.expanduser("~"), "~"),
-                      "pdf_rel": pdf_path.replace(os.path.expanduser("~"), "~") if pdf_path else None})
-    return saved
+        xlsx_rel = pdf_rel = None
+        if have_xlsx:   # Excel — الصيغة الأساسية المطلوبة
+            try:
+                p = os.path.join(folder, stem + ".xlsx")
+                dctx = dict(ctx); dctx["doc"] = DOC_TYPES[dt]
+                xlsx_docs.build(dt, dctx).save(p)
+                xlsx_rel = p.replace(os.path.expanduser("~"), "~")
+            except Exception as e:
+                errors.append(f"{DOC_TYPES[dt]['label']} (xlsx): {e}")
+        if have_pdf:    # PDF — نسخة إضافية للطباعة/التوقيع
+            try:
+                p = os.path.join(folder, stem + ".pdf")
+                HTML(string=_render_doc(sid, dt), base_url=request.url_root).write_pdf(p)
+                pdf_rel = p.replace(os.path.expanduser("~"), "~")
+            except Exception as e:
+                errors.append(f"{DOC_TYPES[dt]['label']} (pdf): {e}")
+        saved.append({"type": dt, "label": DOC_TYPES[dt]["label"], "xlsx_rel": xlsx_rel, "pdf_rel": pdf_rel})
+    return saved, errors
 
 @app.route("/result/<int:sid>")
 @login_required
